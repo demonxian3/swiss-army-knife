@@ -1,0 +1,59 @@
+// 全局覆盖定制antd主题
+// @import '~antd/dist/antd.less'; // 引入官方提供的 less 样式入口文件
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+body,
+html {
+  width: 100%;
+  height: 100%;
+  font-family: "PingFangSC-Regular";
+}
+
+/* 设置滚动条的样式 */
+::-webkit-scrollbar {
+ width: 5px;
+ height: 9px;
+}
+
+/*滚动槽*/
+::-webkit-scrollbar-track {
+ box-shadow: inset 0 0 6px rgba(197, 188, 188, 0.1);
+ border-radius: 10px;
+}
+
+/* 滚动条滑块 */
+::-webkit-scrollbar-thumb {
+ border-radius: 10px;
+ background: rgba(237, 231, 231, 0.385);
+ box-shadow: inset 0 0 6px rgba(166, 164, 164, 0.4);
+}
+
+.ant-modal-content {
+    padding: 0px!important;
+
+    .ant-modal-header {
+        // color: #2a2e36e0;
+        padding: 10px 24px 12px!important;
+    }
+
+    .ant-modal-body {
+        padding:0px 24px 0px;
+    }
+    
+    .ant-modal-footer{
+        padding: 0px 16px 12px 0px;
+    }
+}
+
+.ant-table-cell-row-hover {
+    // background-color: #fafafa!important;
+}
+
+.ant-table-thead
+{
+    // background-color: #EDEFFE!important;
+}
