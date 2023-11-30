@@ -9,12 +9,12 @@ export default  [
     {
         key: "home",
         label: "首页",
-        icon: <DribbbleOutlined />,
+        // icon: <DribbbleOutlined />,
     },
     {
         key: "settings",
         label: "设置",
-        icon: <SettingOutlined />,
+        // icon: <SettingOutlined />,
         children: [
             {
                 type: "group",

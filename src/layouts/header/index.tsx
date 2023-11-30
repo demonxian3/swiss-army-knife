@@ -31,7 +31,7 @@ const HeaderComponent = () => {
                 items={headerConfig}
                 onClick={handleNavigate}
             />
-            <div className="float-right">ProjectName</div>
+            {/* <div className="float-right">ProjectName</div> */}
         </Header>
     )
 }

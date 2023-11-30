@@ -8,7 +8,7 @@ const App: React.FC = () => {
 
     console.log(globalStore.localeKey)
     return (
-        <Card>
+        <Card size="small">
             <Typography>Hello world</Typography>
         </Card>
     )
