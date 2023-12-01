@@ -7,9 +7,14 @@ class GlobalStore {
     localeLang = zhCN
     themeTag = "light"
     themeKey = "rds_theme"
+    toolBoxExpand = false
 
     constructor() {
         makeAutoObservable(this)
+    }
+
+    toggleExpand() {
+        this.toolBoxExpand = !this.toolBoxExpand
     }
 
     changeLocale(key: string) {
@@ -25,7 +30,7 @@ class GlobalStore {
     loadTheme() {
         try {
             const themeStr = localStorage.getItem(this.themeKey) ?? ""
-           
+
             if (themeStr.length === 0) {
                 localStorage.setItem(this.themeKey, this.themeTag)
             } else {
@@ -44,7 +49,7 @@ class GlobalStore {
         localStorage.setItem(this.themeKey, this.themeTag)
     }
 
-    get isDarkMode(){
+    get isDarkMode() {
         return this.themeTag !== "light"
     }
 }

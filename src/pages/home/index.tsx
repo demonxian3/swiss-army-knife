@@ -10,7 +10,7 @@ const App: React.FC = () => {
     return (
         <Space className="items-stretch h-full">
             <ToolBox />
-            <DataArea />
+            <DataArea  />
         </Space>
     )
 }
