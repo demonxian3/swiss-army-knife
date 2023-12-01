@@ -1,0 +1,68 @@
+.toolbox-wrap {
+  position: relative;
+  transition: all  0.3s ease-in-out;
+  height: 100%;
+
+}
+
+.btn {
+  color: white;
+  width: 26px;
+  border-radius: 2px;
+  padding: 12px 2px;
+  font-size: 13px;
+
+  &.active {
+    background-color: transparent
+  }
+}
+
+.tool-button(@bgColor, @hoverColor: lighten(@bgColor, 10%)) {
+  .btn;
+  background-color: @bgColor;
+
+  &:hover:not(.active) {
+    background-color: @hoverColor;
+  }
+
+  &.active {
+    color: darken(@bgColor, 10%);
+    border-left: 4px solid @bgColor;
+  }
+}
+
+.coder-button {
+  .tool-button(#08979c);
+}
+
+.crypt-button {
+  .tool-button(#531dab, #9254de);
+}
+
+.format-button {
+  .tool-button(#c41d7f, #eb2f96);
+}
+
+.other-button {
+  .tool-button(#d46b08, #ffc069);
+}
+
+.sidebar {
+    width: 220px;
+    height: 100%;
+    overflow: hidden;
+    transition: width 0.3s ease-in-out;
+    // border: 1px solid red
+  }
+  
+  .sidebar.expanded {
+    width: 220px; /* 展开时的宽度 */
+  }
+  
+  .sidebar.collapsed {
+    width: 0px; /* 收缩时的宽度 */
+  }
+  
+  .content {
+    padding: 20px;
+  }

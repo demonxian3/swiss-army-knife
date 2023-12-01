@@ -23,7 +23,7 @@ const HeaderComponent = () => {
 
     return (
         <Header className="header">
-            <div className="logo">logo</div>
+            <div className="logo">SAK</div>
             <Menu
                 theme="dark"
                 mode="horizontal"

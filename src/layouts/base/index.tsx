@@ -2,7 +2,7 @@ import { Layout, Card } from "antd"
 import { observer } from "mobx-react-lite"
 import { Outlet, useLocation, useNavigate } from "react-router-dom"
 import { useEffect } from "react"
-import { Header, Footer } from "@/layouts/index"
+import { Header, Sider } from "@/layouts/index"
 
 const { Content } = Layout
 
@@ -18,20 +18,13 @@ const ContentLoader = () => {
     }, [])
 
     return (
-        <Layout>
+        <Layout className="h-full">
             <Header />
-            <Content className="px-50px">
-                {/* <Breadcrumb /> */}
-                <Layout className=" mt-3">
-                    {/* <Sidebar /> */}
-                    <Content className="">
-                        <Card className="h-680px overflow-y-scroll border border-red">
-                            <Outlet />
-                        </Card>
-                    </Content>
-                </Layout>
-            </Content>
-            <Footer />
+            <Layout>
+                <Content className="h-full">
+                    <Outlet />
+                </Content>
+            </Layout>
         </Layout>
     )
 }
