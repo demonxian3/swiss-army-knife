@@ -40,7 +40,7 @@ const HistoryPanel = () => {
                     <Space>
                         <button
                             onClick={() => gs.toggleHistoryExpand()}
-                            className={`w-26px text-yellow-600 text-white text-xl `}
+                            className={`w-26px text-rose-600 text-white text-xl `}
                         >
                             {gs.historyExpand ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
                         </button>

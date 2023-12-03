@@ -14,29 +14,30 @@ const DataArea = () => {
         console.log(data)
     }
 
-    const handleSelect = () => {
-        const textarea = document.activeElement as HTMLTextAreaElement
+    // const handleSelect = () => {
+    //     const textarea = document.activeElement as HTMLTextAreaElement
 
-        if (!textarea || !textarea.value) {
-            return
-        }
+    //     if (!textarea || !textarea.value) {
+    //         return
+    //     }
 
-        const { selectionStart, selectionEnd } = textarea
+    //     const { selectionStart, selectionEnd } = textarea
 
-        const content =
-            selectionEnd <= selectionStart
-                ? ""
-                : textarea.value.substring(selectionStart, selectionEnd)
+    //     const content =
+    //         selectionEnd <= selectionStart
+    //             ? ""
+    //             : textarea.value.substring(selectionStart, selectionEnd)
 
-        gs.setSelection(selectionStart, selectionEnd, textarea, content)
-    }
+    //     gs.setSelection(selectionStart, selectionEnd, textarea, content)
+    // }
 
     return (
         <Input.TextArea
-            onMouseUp={handleSelect}
+            // onMouseUp={handleSelect}
+            // onMouseLeave={handleSelect}
             onPaste={handlePaste}
             onChange={(e) => gs.setDataSource(e.target.value)}
-            className={`${isLaptop ? "text-size-14px" : "text-size-16px"} w-100% !h-full`}
+            className={`${isLaptop ? "text-size-14px" : "text-size-16px"} break-all w-full !h-full`}
             value={gs.dataSource}
         />
     )

@@ -10,26 +10,12 @@ class GlobalStore {
     toolBoxExpand = true
     historyExpand = true
     dataSource =
-        "Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools"
+        "Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools。Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools。Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools。Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools。Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools。Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools"
     historyStack: any[] = []
-    selection = {
-        selectionStart: 0,
-        selectionEnd: 0,
-        elem: null as any as HTMLTextAreaElement,
-        content: "",
-    }
+ 
 
     constructor() {
         makeAutoObservable(this)
-    }
-
-    setSelection(selectionStart: number, selectionEnd: number, elem: any, content: string) {
-        this.selection.content = content
-        this.selection.elem = elem
-        this.selection.selectionStart = selectionStart
-        this.selection.selectionEnd = selectionEnd
-
-        console.log(selectionStart, selectionEnd, elem, content)
     }
 
     addHistoryItem(stack: any) {
@@ -40,20 +26,29 @@ class GlobalStore {
         this.dataSource = text
     }
 
-    setData(replaceText: string) {
-        if (this.selection.content) {
-            const { selectionStart: start, selectionEnd: end, elem } = this.selection
-            const newText =
-                this.dataSource.slice(0, start) + replaceText + this.dataSource.slice(end)
+    getSelectionInfo() {
+        const elem = document.querySelector("textarea")
 
-            console.log(start, end, newText)
+        if (!elem) {
+            return { elem: null, start: 0, end: 0, selectText: "", hasSelection: false }
+        }
+
+        const { selectionStart: start, selectionEnd: end } = elem
+        const selectText = elem.value.slice(start, end)
+
+        return { elem, start, end, selectText, hasSelection: selectText.length && end > start }
+    }
+
+    setData(replaceText: string) {
+        const { elem, start, end, hasSelection } = this.getSelectionInfo()
+
+        if (hasSelection) {
+            const newText = elem!.value.slice(0, start) + replaceText + elem!.value.slice(end)
             this.setDataSource(newText)
-            this.selection.selectionEnd = start + replaceText.length
-            this.selection.content = replaceText
 
             setTimeout(() => {
-                elem.focus()
-                elem.setSelectionRange(start, start + replaceText.length)
+                elem!.focus()
+                elem!.setSelectionRange(start, start + replaceText.length)
             }, 1)
         } else {
             this.setDataSource(replaceText)
@@ -121,7 +116,8 @@ class GlobalStore {
     }
 
     get data() {
-        return this.selection.content || this.dataSource
+        const { selectText, hasSelection } = this.getSelectionInfo()
+        return hasSelection ? selectText : this.dataSource
     }
 }
 
