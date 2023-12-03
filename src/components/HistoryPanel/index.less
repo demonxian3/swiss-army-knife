@@ -1,0 +1,33 @@
+.history-panel {
+    overflow: hidden;
+    transition: width 0.2s ease-in-out;
+
+    &.collapsed {
+        .ant-list-items {
+            opacity:0;
+        }
+    }
+
+    .ant-list-header {
+        padding-block: 0px;
+    }
+
+    .ellipsis {
+        font-size: 12px;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 2; /* 显示的行数 */
+        -webkit-box-orient: vertical;
+        text-overflow: ellipsis;
+    }
+
+    .ant-list-item {
+        cursor: pointer;
+
+        &:hover {
+            background: rgba(60, 90, 100, 0.04)
+        }
+    }
+    
+ 
+}

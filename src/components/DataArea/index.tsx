@@ -1,7 +1,45 @@
+import { useMemo } from "react"
+import { useStore } from "@/stores"
 import { Input } from "antd"
+import { observer } from "mobx-react-lite"
+import { useWindowSize } from "react-use"
 
 const DataArea = () => {
-    return <Input.TextArea rows={20} className="text-size-19px w-58vw mt-2" />
+    const { globalStore: gs } = useStore()
+    const { width: screenWidth } = useWindowSize()
+    const isLaptop = useMemo(() => screenWidth <= 1440, [screenWidth])
+
+    const handlePaste = (e: React.ClipboardEvent) => {
+        const data = e.clipboardData?.getData("Text")
+        console.log(data)
+    }
+
+    const handleSelect = () => {
+        const textarea = document.activeElement as HTMLTextAreaElement
+
+        if (!textarea || !textarea.value) {
+            return
+        }
+
+        const { selectionStart, selectionEnd } = textarea
+
+        const content =
+            selectionEnd <= selectionStart
+                ? ""
+                : textarea.value.substring(selectionStart, selectionEnd)
+
+        gs.setSelection(selectionStart, selectionEnd, textarea, content)
+    }
+
+    return (
+        <Input.TextArea
+            onMouseUp={handleSelect}
+            onPaste={handlePaste}
+            onChange={(e) => gs.setDataSource(e.target.value)}
+            className={`${isLaptop ? "text-size-14px" : "text-size-16px"} w-100% !h-full`}
+            value={gs.dataSource}
+        />
+    )
 }
 
-export default DataArea
+export default observer(DataArea)

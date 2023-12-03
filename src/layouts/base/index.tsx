@@ -2,9 +2,10 @@ import { Layout, Card } from "antd"
 import { observer } from "mobx-react-lite"
 import { Outlet, useLocation, useNavigate } from "react-router-dom"
 import { useEffect } from "react"
-import { Header, Sider } from "@/layouts/index"
-
-const { Content } = Layout
+import { Header } from "@/layouts/index"
+import { ToolBox, HistoryPanel } from "@/components"
+import { Space } from "antd"
+const { Content, Sider } = Layout
 
 const ContentLoader = () => {
     const location = useLocation()
@@ -21,9 +22,17 @@ const ContentLoader = () => {
         <Layout className="h-full">
             <Header />
             <Layout>
+                <Sider width="auto" theme="light">
+                    <ToolBox />
+                </Sider>
                 <Content className="h-full">
+                    {/* <Space className="items-stretch h-full"> */}
                     <Outlet />
+                    {/* </Space> */}
                 </Content>
+                <Sider theme="light" width="auto">
+                    <HistoryPanel />
+                </Sider>
             </Layout>
         </Layout>
     )
