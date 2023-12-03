@@ -1,4 +1,4 @@
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
 import { List, Typography, Space, Tooltip } from "antd"
 import { observer } from "mobx-react-lite"
 import { useStore } from "@/stores"
@@ -19,7 +19,12 @@ const HistoryPanel = () => {
     const { globalStore: gs } = useStore()
     const { width: screenWidth } = useWindowSize()
     const isLaptop = useMemo(() => screenWidth <= 1440, [screenWidth])
-    console.log(gs.historyStack)
+    const [actived, setActived] = useState(-1)
+
+    const handleRollback = (item: { text: string }) => {
+        gs.setDataSource(item.text)
+    }
+
     return (
         <div className={`h-full history-panel  ${gs.getHistoryWidth(isLaptop)}`}>
             <Space className={`!text-12px ${isLaptop ? "w-280px" : "w-320px"}`}>
@@ -38,7 +43,7 @@ const HistoryPanel = () => {
                     itemLayout="horizontal"
                     dataSource={gs.historyStack}
                     renderItem={(item) => (
-                        <List.Item>
+                        <List.Item onClick={() => handleRollback(item)}>
                             <List.Item.Meta
                                 title={
                                     <div className={`flex justify-between w-full`}>
@@ -49,8 +54,7 @@ const HistoryPanel = () => {
                                                 )}
                                             >
                                                 {dayjs(item.time).format("mm:ss")}
-                                            </Tooltip>
-                                            {" "}
+                                            </Tooltip>{" "}
                                             {item.label}
                                         </Typography>
                                         <Space>
