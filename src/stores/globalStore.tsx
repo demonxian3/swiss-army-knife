@@ -11,15 +11,15 @@ class GlobalStore {
     historyExpand = true
     dataSource =
         "Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools。Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools。Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools。Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools。Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools。Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools"
-    historyStack: any[] = []
- 
+    historyStack: { time: number; text: string; label: string }[] = []
 
     constructor() {
         makeAutoObservable(this)
     }
 
-    addHistoryItem(stack: any) {
-        this.historyStack.push(stack)
+    addHistoryItem(text: string, label: string) {
+        // 通过返回新数组触发引用类型地址变动，使得观察者组件能够重新渲染
+        this.historyStack = [...this.historyStack, { time: new Date().getTime(), text, label }]
     }
 
     setDataSource(text: string) {
@@ -39,12 +39,13 @@ class GlobalStore {
         return { elem, start, end, selectText, hasSelection: selectText.length && end > start }
     }
 
-    setData(replaceText: string) {
+    setData(replaceText: string, label: string) {
         const { elem, start, end, hasSelection } = this.getSelectionInfo()
 
         if (hasSelection) {
             const newText = elem!.value.slice(0, start) + replaceText + elem!.value.slice(end)
             this.setDataSource(newText)
+            this.addHistoryItem(newText, label)
 
             setTimeout(() => {
                 elem!.focus()
@@ -52,6 +53,7 @@ class GlobalStore {
             }, 1)
         } else {
             this.setDataSource(replaceText)
+            this.addHistoryItem(replaceText, label)
         }
     }
 

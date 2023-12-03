@@ -38,6 +38,16 @@ function hexDecode(hex: string) {
     return new TextDecoder().decode(new Uint8Array(bytes))
 }
 
+function unicodeEncode(text: string): string {
+    return Array.from(text)
+        .map((char) => `\\u${char.charCodeAt(0).toString(16).padStart(4, "0")}`)
+        .join("")
+}
+
+function unicodeDecode(escapedText: string): string {
+    return escapedText.replace(/\\u([0-9a-fA-F]{4})/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)));
+}
+
 export default [
     { type: "coder", label: "Escape编码", handler: encodeURIComponent },
     { type: "coder", label: "Escape解码", handler: decodeURIComponent },
@@ -47,8 +57,8 @@ export default [
     { type: "coder", label: "Base64解码", handler: base64Decode },
     { type: "coder", label: "Hex编码", handler: hexEncode },
     { type: "coder", label: "Hex解码", handler: hexDecode },
-    { type: "coder", label: "Unicode编码", handler: "unicodeEncode" },
-    { type: "coder", label: "Unicode解码", handler: "unicodeDecode" },
+    { type: "coder", label: "Unicode编码", handler: unicodeEncode },
+    { type: "coder", label: "Unicode解码", handler: unicodeDecode },
     { type: "coder", label: "实体编码", handler: "entityEncode" },
     { type: "coder", label: "实体解码", handler: "entityDecode" },
     { type: "coder", label: "转时间戳", handler: "toTimestamp" },

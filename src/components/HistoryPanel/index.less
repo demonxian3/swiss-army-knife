@@ -1,5 +1,5 @@
 .history-panel {
-    overflow: hidden;
+    overflow-x: hidden;
     transition: width 0.2s ease-in-out;
 
     &.collapsed {
@@ -19,8 +19,8 @@
         -webkit-line-clamp: 2; /* 显示的行数 */
         -webkit-box-orient: vertical;
         text-overflow: ellipsis;
+        word-break: break-all;
     }
-
     .ant-list-item {
         cursor: pointer;
 

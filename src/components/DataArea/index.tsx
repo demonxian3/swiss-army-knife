@@ -11,7 +11,7 @@ const DataArea = () => {
 
     const handlePaste = (e: React.ClipboardEvent) => {
         const data = e.clipboardData?.getData("Text")
-        console.log(data)
+        gs.addHistoryItem(data, "粘贴文本")
     }
 
     // const handleSelect = () => {

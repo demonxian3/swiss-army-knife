@@ -26,10 +26,10 @@ const Toolbox = () => {
         )
     }
 
-    const handleCoding = (fn: Function) => () => {
+    const handleCoding = (item: { label: string; handler: Function }) => () => {
         try {
-            const res = fn(gs.data)
-            gs.setData(res)
+            const res = item.handler(gs.data)
+            gs.setData(res, item.label)
         } catch (e: any) {
             message.error(e.toString())
         }
@@ -76,7 +76,7 @@ const Toolbox = () => {
                                                     size={screenWidth <= 1440 ? "small" : "middle"}
                                                     type="primary"
                                                     ghost
-                                                    onClick={handleCoding(item.handler)}
+                                                    onClick={handleCoding(item)}
                                                 >
                                                     {item.label}
                                                 </Button>
