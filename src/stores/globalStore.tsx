@@ -9,6 +9,7 @@ class GlobalStore {
     themeKey = "rds_theme"
     toolBoxExpand = true
     historyExpand = true
+    historyActiveKey = -1
     dataSource =
         "Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools。Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools。Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools。Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools。Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools。Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools"
     historyStack: { time: number; text: string; label: string }[] = []
@@ -18,8 +19,34 @@ class GlobalStore {
     }
 
     addHistoryItem(text: string, label: string) {
+        // 如果选中非最后一条历史记录，新增记录要覆盖和清除后面的记录
+        let stack = this.historyStack
+        if (this.historyActiveKey < this.historyStack.length - 1) {
+            stack = this.historyStack.slice(0, this.historyActiveKey + 1)
+        }
+
         // 通过返回新数组触发引用类型地址变动，使得观察者组件能够重新渲染
-        this.historyStack = [...this.historyStack, { time: new Date().getTime(), text, label }]
+        this.historyStack = [...stack, { time: new Date().getTime(), text, label }]
+        this.setHistoryActiveKey(this.historyStack.length - 1)
+
+        // 每次更新时，另滚动条始终保持底部
+        setTimeout(() => {
+            const elem = document.querySelector(".history-scroll") as HTMLDivElement
+            elem.scrollTop = elem.scrollHeight
+        }, 1)
+    }
+
+    delHistoryItem(idx: number) {
+        const stack = this.historyStack.slice()
+        stack.splice(idx, 1)
+        this.historyStack = stack
+        if (this.historyActiveKey >= this.historyStack.length) {
+            this.historyActiveKey = this.historyStack.length - 1
+        }
+    }
+
+    setHistoryActiveKey(idx: number) {
+        this.historyActiveKey = idx
     }
 
     setDataSource(text: string) {

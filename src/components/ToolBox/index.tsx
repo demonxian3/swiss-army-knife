@@ -45,7 +45,6 @@ const Toolbox = () => {
                     >
                         {gs.toolBoxExpand ? <MenuFoldOutlined /> : <MenuUnfoldOutlined />}
                     </button>
-
                     {buildToolBtn("coder", "编码解码")}
                     {buildToolBtn("crypt", "加密解密")}
                     {buildToolBtn("other", "杂项功能")}

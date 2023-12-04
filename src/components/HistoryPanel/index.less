@@ -24,7 +24,15 @@
     .ant-list-item {
         cursor: pointer;
 
-        &:hover {
+        &.active {
+            background-color: #bae0ff;
+        }
+
+        &.active-road {
+            background-color: #e6f4ff;
+        }
+
+        &:hover:not(.active) {
             background: rgba(60, 90, 100, 0.04)
         }
     }
