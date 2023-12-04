@@ -11,6 +11,7 @@ class GlobalStore {
     historyExpand = true
     historyActiveKey = -1
     dataSource = `{
+        "url": "https://www.example.com:8080/path/to/page?name=John&age=25#section1",
         "stringVar": "Hello, World!",
         "numberVar": 42,
         "booleanVar": true,

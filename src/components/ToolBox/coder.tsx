@@ -1,9 +1,9 @@
 // encodeURIComponent 对于字母会跳过编码，因此编写函数补充字母等相关编码
 import dayjs from "dayjs"
 
-const urlEncode = (str: string) => {
+const urlEncode = (text: string) => {
     let skip = -1
-    return Array.from(encodeURIComponent(str)).reduce((ret, c, i) => {
+    return Array.from(encodeURIComponent(text)).reduce((ret, c, i) => {
         if (c === "%") {
             skip = i + 2
         }
@@ -19,18 +19,18 @@ const urlEncode = (str: string) => {
     }, "")
 }
 
-const base64Encode = (input: string) => {
-    const bytes = new TextEncoder().encode(input)
+const base64Encode = (text: string) => {
+    const bytes = new TextEncoder().encode(text)
     return btoa(String.fromCharCode(...bytes))
 }
 
-const base64Decode = (input: string) => {
-    const decodedBytes = Uint8Array.from(atob(input), (c) => c.charCodeAt(0))
+const base64Decode = (text: string) => {
+    const decodedBytes = Uint8Array.from(atob(text), (c) => c.charCodeAt(0))
     return new TextDecoder().decode(decodedBytes)
 }
 
-const hexEncode = (input: string) => {
-    return Array.from(new TextEncoder().encode(input), (byte) =>
+const hexEncode = (text: string) => {
+    return Array.from(new TextEncoder().encode(text), (byte) =>
         byte.toString(16).padStart(2, "0"),
     ).join("")
 }
@@ -46,20 +46,18 @@ const unicodeEncode = (text: string): string => {
         .join("")
 }
 
-const unicodeDecode = (escapedText: string): string => {
-    return escapedText.replace(/\\u([0-9a-fA-F]{4})/g, (_, hex) =>
-        String.fromCharCode(parseInt(hex, 16)),
-    )
+const unicodeDecode = (text: string): string => {
+    return text.replace(/\\u([0-9a-fA-F]{4})/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)))
 }
 
-const entityEncode = (input: string, hex = true) => {
-    return Array.from(input)
+const entityEncode = (text: string, hex = true) => {
+    return Array.from(text)
         .map((char) => `&#${hex ? "x" + char.charCodeAt(0).toString(16) : char.charCodeAt(0)};`)
         .join("")
 }
 
-const entityDecode = (input: string) => {
-    return input
+const entityDecode = (text: string) => {
+    return text
         .split(";")
         .map((entity) =>
             String.fromCharCode(
@@ -69,8 +67,8 @@ const entityDecode = (input: string) => {
         .join("")
 }
 
-const toTimestamp = (input: string): string => {
-    const parsedDate = dayjs(input)
+const toTimestamp = (text: string): string => {
+    const parsedDate = dayjs(text)
 
     if (!parsedDate.isValid()) {
         throw new Error("非有效日期格式, 无法转换")
@@ -79,8 +77,8 @@ const toTimestamp = (input: string): string => {
     return parsedDate.unix().toString()
 }
 
-const toDatetime = (input: string): string => {
-    const timestamp = input.length === 10 ? parseInt(input + "000", 10) : parseInt(input, 10)
+const toDatetime = (text: string): string => {
+    const timestamp = text.length === 10 ? parseInt(text + "000", 10) : parseInt(text, 10)
 
     if (isNaN(timestamp)) {
         throw new Error("非有效时间戳格式，无法转换")
@@ -115,8 +113,8 @@ const highlightJsonError = (error: any) => {
             fn: (text: string) => {
                 posStart = elem.value.indexOf(text)
                 posEnd = posStart + text.length
-            }
-        }
+            },
+        },
     ]
 
     matches.reduce((ret, cur) => {
@@ -142,9 +140,9 @@ const highlightJsonError = (error: any) => {
     throw new Error(error.toString())
 }
 
-const jsonFormat = (input: string): string => {
+const jsonFormat = (text: string): string => {
     try {
-        const trimmedInput = input.trim()
+        const trimmedInput = text.trim()
         const parsedJSON = JSON.parse(trimmedInput)
         return JSON.stringify(parsedJSON, null, 4)
     } catch (error: any) {
@@ -153,9 +151,9 @@ const jsonFormat = (input: string): string => {
     }
 }
 
-const jsonCompress = (input: string): string => {
+const jsonCompress = (text: string): string => {
     try {
-        const trimmedInput = input.trim()
+        const trimmedInput = text.trim()
         const parsedJSON = JSON.parse(trimmedInput)
         return JSON.stringify(parsedJSON, null, 0)
     } catch (error: any) {
@@ -163,6 +161,20 @@ const jsonCompress = (input: string): string => {
         return ""
     }
 }
+
+const paramSplit = (text: string): string => {
+    return text.replace(/([?&])/gm, "\n$1")
+}
+
+const paramJoin = (text: string): string => {
+    return text.replace(/\n([?&])/gm, "$1")
+}
+
+const noImplemented = () => {
+    throw new Error("功能尚未开发")
+}
+
+
 
 export default [
     { type: "coder", label: "Escape编码", handler: encodeURIComponent },
@@ -181,6 +193,10 @@ export default [
     { type: "coder", label: "转日期时间", handler: toDatetime },
     { type: "coder", label: "Json排版", handler: jsonFormat },
     { type: "coder", label: "Json压缩", handler: jsonCompress },
+    { type: "coder", label: "qs转json", handler: noImplemented },
+    { type: "coder", label: "json转qs", handler: noImplemented },
+    { type: "coder", label: "参数分行", handler: paramSplit },
+    { type: "coder", label: "参数并行", handler: paramJoin },
     { type: "coder", label: "邮件编码", handler: "quotePrintEncode" },
     { type: "coder", label: "邮件解码", handler: "quotePrintDecode" },
 ]
