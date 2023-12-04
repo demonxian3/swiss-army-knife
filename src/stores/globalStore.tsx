@@ -10,8 +10,20 @@ class GlobalStore {
     toolBoxExpand = true
     historyExpand = true
     historyActiveKey = -1
-    dataSource =
-        "Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools。Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools。Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools。Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools。Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools。Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools"
+    dataSource = `{
+        "stringVar": "Hello, World!",
+        "numberVar": 42,
+        "booleanVar": true,
+        "nullVar": null,
+        "undefinedVar": undefined,
+        "arrayVar": [1, "two", false, null],
+        "objectVar": {
+          "key1": "value1",
+          "key2": 123,
+          "key3": true,
+          "key4": null
+        }
+      }，1701659378018，Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools。Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools。Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools。`
     historyStack: { time: number; text: string; label: string }[] = []
 
     constructor() {

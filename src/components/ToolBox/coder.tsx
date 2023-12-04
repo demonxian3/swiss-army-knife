@@ -1,4 +1,6 @@
 // encodeURIComponent 对于字母会跳过编码，因此编写函数补充字母等相关编码
+import dayjs from "dayjs"
+
 const urlEncode = (str: string) => {
     let skip = -1
     return Array.from(encodeURIComponent(str)).reduce((ret, c, i) => {
@@ -27,25 +29,139 @@ const base64Decode = (input: string) => {
     return new TextDecoder().decode(decodedBytes)
 }
 
-function hexEncode(input: string) {
+const hexEncode = (input: string) => {
     return Array.from(new TextEncoder().encode(input), (byte) =>
         byte.toString(16).padStart(2, "0"),
     ).join("")
 }
 
-function hexDecode(hex: string) {
+const hexDecode = (hex: string) => {
     const bytes = hex.match(/.{1,2}/g)!.map((byte) => parseInt(byte, 16))
     return new TextDecoder().decode(new Uint8Array(bytes))
 }
 
-function unicodeEncode(text: string): string {
+const unicodeEncode = (text: string): string => {
     return Array.from(text)
         .map((char) => `\\u${char.charCodeAt(0).toString(16).padStart(4, "0")}`)
         .join("")
 }
 
-function unicodeDecode(escapedText: string): string {
-    return escapedText.replace(/\\u([0-9a-fA-F]{4})/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)));
+const unicodeDecode = (escapedText: string): string => {
+    return escapedText.replace(/\\u([0-9a-fA-F]{4})/g, (_, hex) =>
+        String.fromCharCode(parseInt(hex, 16)),
+    )
+}
+
+const entityEncode = (input: string, hex = true) => {
+    return Array.from(input)
+        .map((char) => `&#${hex ? "x" + char.charCodeAt(0).toString(16) : char.charCodeAt(0)};`)
+        .join("")
+}
+
+const entityDecode = (input: string) => {
+    return input
+        .split(";")
+        .map((entity) =>
+            String.fromCharCode(
+                entity[2] === "x" ? parseInt(entity.slice(3), 16) : parseInt(entity.slice(2), 10),
+            ),
+        )
+        .join("")
+}
+
+const toTimestamp = (input: string): string => {
+    const parsedDate = dayjs(input)
+
+    if (!parsedDate.isValid()) {
+        throw new Error("非有效日期格式, 无法转换")
+    }
+
+    return parsedDate.unix().toString()
+}
+
+const toDatetime = (input: string): string => {
+    const timestamp = input.length === 10 ? parseInt(input + "000", 10) : parseInt(input, 10)
+
+    if (isNaN(timestamp)) {
+        throw new Error("非有效时间戳格式，无法转换")
+    }
+
+    return dayjs(timestamp).format("YYYY-MM-DD HH:mm:ss")
+}
+
+// 高亮显示错误的位置
+const highlightJsonError = (error: any) => {
+    const elem = document.querySelector("textarea") as HTMLTextAreaElement
+    let posStart = -1
+    let posEnd = -1
+
+    const matches = [
+        {
+            reg: /\.{3}"(.*?)"\.{3}/,
+            fn: (text: string) => {
+                posStart = elem.value.indexOf(text)
+                posEnd = posStart + text.length
+            },
+        },
+        {
+            reg: /at position (\d+) \(/,
+            fn: (text: string) => {
+                posStart = parseInt(text, 10)
+                posEnd = posStart + 1
+            },
+        },
+        {
+            reg: /Unexpected token '(.*?)'/,
+            fn: (text: string) => {
+                posStart = elem.value.indexOf(text)
+                posEnd = posStart + text.length
+            }
+        }
+    ]
+
+    matches.reduce((ret, cur) => {
+        if (ret) return ret
+        const errMatch = error.toString().match(cur.reg)
+        if (errMatch?.length >= 2) {
+            cur.fn(errMatch[1])
+            return true
+        }
+
+        return false
+    }, false)
+
+    if (posStart >= 0 && posEnd > posStart) {
+        elem.classList.add("highlight-orange")
+        elem.focus()
+        elem.setSelectionRange(posStart, posEnd)
+        setTimeout(() => {
+            elem.classList.remove("highlight-orange")
+        }, 2000)
+    }
+
+    throw new Error(error.toString())
+}
+
+const jsonFormat = (input: string): string => {
+    try {
+        const trimmedInput = input.trim()
+        const parsedJSON = JSON.parse(trimmedInput)
+        return JSON.stringify(parsedJSON, null, 4)
+    } catch (error: any) {
+        highlightJsonError(error)
+        return ""
+    }
+}
+
+const jsonCompress = (input: string): string => {
+    try {
+        const trimmedInput = input.trim()
+        const parsedJSON = JSON.parse(trimmedInput)
+        return JSON.stringify(parsedJSON, null, 0)
+    } catch (error: any) {
+        highlightJsonError(error)
+        return ""
+    }
 }
 
 export default [
@@ -59,10 +175,12 @@ export default [
     { type: "coder", label: "Hex解码", handler: hexDecode },
     { type: "coder", label: "Unicode编码", handler: unicodeEncode },
     { type: "coder", label: "Unicode解码", handler: unicodeDecode },
-    { type: "coder", label: "实体编码", handler: "entityEncode" },
-    { type: "coder", label: "实体解码", handler: "entityDecode" },
-    { type: "coder", label: "转时间戳", handler: "toTimestamp" },
-    { type: "coder", label: "转日期时间", handler: "toDateTime" },
+    { type: "coder", label: "实体编码", handler: entityEncode },
+    { type: "coder", label: "实体解码", handler: entityDecode },
+    { type: "coder", label: "转时间戳", handler: toTimestamp },
+    { type: "coder", label: "转日期时间", handler: toDatetime },
+    { type: "coder", label: "Json排版", handler: jsonFormat },
+    { type: "coder", label: "Json压缩", handler: jsonCompress },
     { type: "coder", label: "邮件编码", handler: "quotePrintEncode" },
     { type: "coder", label: "邮件解码", handler: "quotePrintDecode" },
 ]
