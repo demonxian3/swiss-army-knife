@@ -1,5 +1,6 @@
 // encodeURIComponent 对于字母会跳过编码，因此编写函数补充字母等相关编码
 import dayjs from "dayjs"
+import qs from "qs"
 
 const urlEncode = (text: string) => {
     let skip = -1
@@ -174,7 +175,13 @@ const noImplemented = () => {
     throw new Error("功能尚未开发")
 }
 
+const json2QueryString = (text: string) => {
+    return qs.stringify(JSON.parse(jsonCompress(text)))
+}
 
+const queryString2Json = (text: string) => {
+    return jsonFormat(JSON.stringify(qs.parse(text.replace(/\s/g, ""))))
+}
 
 export default [
     { type: "coder", label: "Escape编码", handler: encodeURIComponent },
@@ -193,8 +200,8 @@ export default [
     { type: "coder", label: "转日期时间", handler: toDatetime },
     { type: "coder", label: "Json排版", handler: jsonFormat },
     { type: "coder", label: "Json压缩", handler: jsonCompress },
-    { type: "coder", label: "qs转json", handler: noImplemented },
-    { type: "coder", label: "json转qs", handler: noImplemented },
+    { type: "coder", label: "qs转json", handler: queryString2Json },
+    { type: "coder", label: "json转qs", handler: json2QueryString },
     { type: "coder", label: "参数分行", handler: paramSplit },
     { type: "coder", label: "参数并行", handler: paramJoin },
     { type: "coder", label: "邮件编码", handler: "quotePrintEncode" },

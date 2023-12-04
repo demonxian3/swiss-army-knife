@@ -82,6 +82,11 @@ class GlobalStore {
     setData(replaceText: string, label: string) {
         const { elem, start, end, hasSelection } = this.getSelectionInfo()
 
+        // 当历史为空，将初始数据作为历史记录首条
+        if (!this.historyStack.length) {
+            this.addHistoryItem(this.dataSource, "初始数据")
+        }
+
         if (hasSelection) {
             const newText = elem!.value.slice(0, start) + replaceText + elem!.value.slice(end)
             this.setDataSource(newText)
