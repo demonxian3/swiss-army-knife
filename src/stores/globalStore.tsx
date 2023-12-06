@@ -8,7 +8,7 @@ class GlobalStore {
     themeTag = "light"
     themeKey = "rds_theme"
     toolBoxExpand = true
-    historyExpand = true
+    historyExpand = false
     historyActiveKey = -1
     dataSource = `{
         "url": "https://www.example.com:8080/path/to/page?name=John&age=25#section1",

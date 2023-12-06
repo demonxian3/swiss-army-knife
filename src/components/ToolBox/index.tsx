@@ -1,6 +1,6 @@
-import { useState, useMemo } from "react"
-import { Flex, Button, Typography, message } from "antd"
-import buttonConfig from "./coder"
+import { useState, useMemo, ReactElement } from "react"
+import { Divider, Button, Typography, message } from "antd"
+import { tools } from "@/misc/index"
 import { chain } from "lodash"
 import { observer } from "mobx-react-lite"
 import { useStore } from "@/stores"
@@ -10,7 +10,8 @@ import { useWindowSize } from "react-use"
 
 // const randomHue = Math.floor(Math.random() * 360)
 const Toolbox = () => {
-    const [activeTool, setActiveTool] = useState("coder")
+    const [activeTool, setActiveTool] = useState("crypter")
+    const [settingDom, setSettingDom] = useState<ReactElement | null>(null)
     const { globalStore: gs } = useStore()
     const { width: screenWidth } = useWindowSize()
     const isLaptop = useMemo(() => screenWidth <= 1440, [screenWidth])
@@ -26,11 +27,21 @@ const Toolbox = () => {
         )
     }
 
-    const handleCoding = (item: { label: string; handler: Function }) => () => {
+    const handleCoding = (item: { label: string; handler: Function; helper?: Function }) => () => {
         try {
+            if (item.handler.name === "showConfig") {
+                item.handler(setSettingDom, handleCoding, item, isLaptop)
+                return
+            }
+
+            if (!item?.helper) {
+                setSettingDom(null)
+            }
+
             const res = item.handler(gs.data)
             gs.setData(res, item.label)
         } catch (e: any) {
+            console.error(e)
             message.error(e.toString())
         }
     }
@@ -46,11 +57,11 @@ const Toolbox = () => {
                         {gs.toolBoxExpand ? <MenuFoldOutlined /> : <MenuUnfoldOutlined />}
                     </button>
                     {buildToolBtn("coder", "编码解码")}
-                    {buildToolBtn("crypt", "加密解密")}
+                    {buildToolBtn("crypter", "加密解密")}
                     {buildToolBtn("other", "杂项功能")}
-                    {buildToolBtn("format", "格式排版")}
+                    {buildToolBtn("formatter", "格式排版")}
                 </div>
-                <div className="">
+                <div className="w-full">
                     <table>
                         <thead>
                             <tr>
@@ -62,7 +73,7 @@ const Toolbox = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {chain(buttonConfig)
+                            {chain(tools)
                                 .filter((btn: any) => btn.type === activeTool)
                                 .chunk(2)
                                 .map((chunk: any, idx: number) => (
@@ -86,6 +97,7 @@ const Toolbox = () => {
                                 .value()}
                         </tbody>
                     </table>
+                    {settingDom}
                 </div>
             </div>
         </div>

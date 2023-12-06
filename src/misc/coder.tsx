@@ -1,7 +1,7 @@
-// encodeURIComponent 对于字母会跳过编码，因此编写函数补充字母等相关编码
 import dayjs from "dayjs"
 import qs from "qs"
 
+// encodeURIComponent 对于字母会跳过编码，因此编写函数补充字母等相关编码
 const urlEncode = (text: string) => {
     let skip = -1
     return Array.from(encodeURIComponent(text)).reduce((ret, c, i) => {
