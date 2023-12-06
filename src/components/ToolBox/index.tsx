@@ -20,7 +20,11 @@ const Toolbox = () => {
         return (
             <button
                 className={`${key}-button ${activeTool === key && "active"}`}
-                onClick={() => gs.toolBoxExpand && setActiveTool(key)}
+                onClick={() => {
+                    setActiveTool(key)
+                    setSettingDom(null)
+                    !gs.toolBoxExpand && gs.toggleToolExpand()
+                }}
             >
                 {label}
             </button>
@@ -62,7 +66,7 @@ const Toolbox = () => {
                     {buildToolBtn("formatter", "格式排版")}
                 </div>
                 <div className="w-full">
-                    <table>
+                    <table className="w-full">
                         <thead>
                             <tr>
                                 <td>

@@ -1,6 +1,7 @@
 import { getFieldsValue } from "./utils"
-import { Select, Space, Button, Form, Segmented, Input, Divider } from "antd"
+import { Select, Space, Button, Form, Segmented, Input, Divider, Tooltip, message } from "antd"
 import crypto from "crypto-js"
+import { QuestionCircleOutlined } from "@ant-design/icons"
 
 const md5 = (text: string): string => {
     return crypto.MD5(text).toString()
@@ -38,12 +39,14 @@ const fields = [
         label: "密钥",
         type: "input",
         defaultValue: "",
+        validator: (v: string) => (![16, 24, 32].includes(v?.length) ? "密钥长度不合法,必须为16,24,32位" : ""),
     },
     {
         name: "iv",
         label: "IV",
         type: "input",
         defaultValue: "",
+        tip: "仅CBC, CFB模式会使用",
     },
     {
         name: "charset",
@@ -62,44 +65,51 @@ const fields = [
 ]
 
 const encrypt = (label: string, helper: typeof crypto.AES, handleMessage: Function) => {
-    const { charset, encode, mode, padding, iv, key } = getFieldsValue(fields)
-    const parseKey = (crypto.enc as any)[charset].parse(key)
-    const config = {
-        // iv: (crypto.enc as any)[charset].parse(iv || key),
-        mode: (crypto.mode as any)[mode],
-        encoding: (crypto.enc as any)[charset],
-        padding: (crypto.pad as any)[padding],
-    }
+    try {
+        const { charset, encode, mode, padding, iv, key } = getFieldsValue(fields)
+        const parseKey = (crypto.enc as any)[charset].parse(key)
+        const config = {
+            iv: (crypto.enc as any)[charset].parse(iv),
+            mode: (crypto.mode as any)[mode],
+            encoding: (crypto.enc as any)[charset],
+            padding: (crypto.pad as any)[padding],
+        }
+        const handler = (text: string) => {
+            const input = (crypto.enc as any)[charset].parse(text)
+            const res = helper.encrypt(input, parseKey, config).ciphertext
+            return encode === "Base64" ? crypto.enc.Base64.stringify(res) : res.toString()
+        }
 
-    const handler = (text: string) => {
-        const input = (crypto.enc as any)[charset].parse(text)
-        const res = helper.encrypt(input, parseKey, config).ciphertext
-        return encode === "Base64" ? crypto.enc.Base64.stringify(res) : res.toString()
+        // 高阶函数调用
+        return handleMessage({ label: `${label}加密`, handler, helper })()
+    } catch (e: any) {
+        message.error(e.toString())
     }
-
-    // 高阶函数调用
-    return handleMessage({ label: `${label}加密`, handler, helper })()
 }
 
 const decrypt = (label: string, helper: typeof crypto.AES, handleMessage: Function) => {
-    const { charset, encode, mode, padding, iv, key } = getFieldsValue(fields)
-    const config = {
-        key: (crypto.enc as any)[charset].parse(key),
-        // iv: (crypto.enc as any)[charset].parse(iv || key),
-        mode: (crypto.mode as any)[mode],
-        // encoding: (crypto.enc as any)[charset],
-        padding: (crypto.pad as any)[padding],
-    }
+    try {
+        const { charset, encode, mode, padding, iv, key } = getFieldsValue(fields)
+        const config = {
+            key: (crypto.enc as any)[charset].parse(key),
+            iv: (crypto.enc as any)[charset].parse(iv),
+            mode: (crypto.mode as any)[mode],
+            // encoding: (crypto.enc as any)[charset],
+            padding: (crypto.pad as any)[padding],
+        }
 
-    const handler = (text: string) => {
-        const input = crypto.lib.CipherParams.create({
-            ciphertext: (crypto.enc as any)[encode].parse(text),
-        })
-        return helper.decrypt(input, config.key, config).toString((crypto.enc as any)[charset])
-    }
+        const handler = (text: string) => {
+            const input = crypto.lib.CipherParams.create({
+                ciphertext: (crypto.enc as any)[encode].parse(text),
+            })
+            return helper.decrypt(input, config.key, config).toString((crypto.enc as any)[charset])
+        }
 
-    // 高阶函数调用
-    return handleMessage({ label: `${label}解密`, handler, helper })()
+        // 高阶函数调用
+        return handleMessage({ label: `${label}解密`, handler, helper })()
+    } catch (e: any) {
+        message.error(e.toString())
+    }
 }
 
 const showConfig = (
@@ -124,7 +134,19 @@ const showConfig = (
                 labelCol={{ span: 5 }}
             >
                 {fields.map((item) => (
-                    <Form.Item label={item.label} name={item.name}>
+                    <Form.Item
+                        label={
+                            <Space size={1}>
+                                {item.label}
+                                {item.tip && (
+                                    <Tooltip title={item.tip}>
+                                        <QuestionCircleOutlined />
+                                    </Tooltip>
+                                )}
+                            </Space>
+                        }
+                        name={item.name}
+                    >
                         {item.type === "select" && (
                             <Select
                                 options={list2Options(item.options || [])}

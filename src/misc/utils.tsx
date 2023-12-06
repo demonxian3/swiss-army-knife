@@ -21,10 +21,20 @@ const typeGetterMap = {
 } as Record<string, (field: string) => string>
 
 export const getFieldsValue = (
-    fields: { type: string; name: string }[],
+    fields: { type: string; name: string, validator?: Function }[],
 ): Record<string, string> => {
     return fields.reduce<Record<string, string>>(
-        (ret, i) => ({ ...ret, [i.name]: typeGetterMap[i.type](i.name) }),
+        (ret, i) => {
+            const v = typeGetterMap[i.type](i.name)
+            if (i?.validator) {
+                const err = i.validator(v)
+                if (err) {
+                    throw new Error(err)
+                }
+            }
+
+            return { ...ret, [i.name]:  v}
+        },
         {},
     )
 }
