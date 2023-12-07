@@ -197,13 +197,8 @@ const jsonSpecCode = new Map(
 )
 
 // 按json格式转义
-const escape = (text: string) =>
-    hexDecode(
-        Object.keys(jsonSpecCode).reduce(
-            (str, k) => str.replace(new RegExp(hexEncode(k), "gm"), jsonSpecCode[k]),
-            hexEncode(text),
-        ),
-    )
+const escape = (text: string) => Array.from(new TextEncoder().encode(text))
+
 
 const unescape = (text: string) =>
     hexDecode(
