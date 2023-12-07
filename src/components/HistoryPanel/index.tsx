@@ -15,7 +15,6 @@ import dayjs from "dayjs"
 import "./index.less" // 样式文件可以自定义
 
 // TODO 收藏，搜索
-// const randomHue = Math.floor(Math.random() * 360)
 const HistoryPanel = () => {
     const { globalStore: gs } = useStore()
     const { width: screenWidth } = useWindowSize()
@@ -36,6 +35,24 @@ const HistoryPanel = () => {
     const handleDelete = (e: React.MouseEvent, idx: number) => {
         e.stopPropagation()
         gs.delHistoryItem(idx)
+    }
+
+    const getItemStyle = (idx: number) => {
+        const isLight = gs.themeTag === "light"
+        const isActive = idx === gs.historyActiveKey
+        const isBeforeActive = idx < gs.historyActiveKey
+
+        let backgroundColor = "unset"
+
+        if (isActive) {
+            backgroundColor = isLight ? "#bae0ff" : "#253e67"
+        }
+
+        if (isBeforeActive) {
+            backgroundColor = isLight ? "#e6f4ff" : "rgb(17, 26, 44)"
+        }
+
+        return { backgroundColor }
     }
 
     // TODO 不加上此代码点击触发handleRollback样式不会更新！
@@ -60,11 +77,9 @@ const HistoryPanel = () => {
                     dataSource={gs.historyStack}
                     renderItem={(item, idx) => (
                         <List.Item
-                            onClick={() => handleRollback(item, idx)}
                             key={idx}
-                            className={`${gs.historyActiveKey === idx ? "active" : ""} ${
-                                gs.historyActiveKey > idx ? "active-road" : ""
-                            }`}
+                            style={getItemStyle(idx)}
+                            onClick={() => handleRollback(item, idx)}
                         >
                             <List.Item.Meta
                                 title={

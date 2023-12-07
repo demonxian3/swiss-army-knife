@@ -36,8 +36,8 @@ const hexEncode = (text: string) => {
     ).join("")
 }
 
-const hexDecode = (hex: string) => {
-    const bytes = hex.match(/.{1,2}/g)!.map((byte) => parseInt(byte, 16))
+const hexDecode = (text: string) => {
+    const bytes = text.match(/.{1,2}/g)!.map((byte) => parseInt(byte, 16))
     return new TextDecoder().decode(new Uint8Array(bytes))
 }
 
@@ -183,11 +183,61 @@ const queryString2Json = (text: string) => {
     return jsonFormat(JSON.stringify(qs.parse(text.replace(/\s/g, ""))))
 }
 
+const jsonSpecCode = new Map(
+    Object.entries({
+        34: 34, // \"
+        92: 92, // \\
+        47: 47, // \/
+        8: 98, // \b
+        12: 102, // \f
+        10: 110, // \n
+        13: 114, // \r
+        9: 116, // \t
+    }),
+)
+
+// 按json格式转义
+const escape = (text: string) =>
+    hexDecode(
+        Object.keys(jsonSpecCode).reduce(
+            (str, k) => str.replace(new RegExp(hexEncode(k), "gm"), jsonSpecCode[k]),
+            hexEncode(text),
+        ),
+    )
+
+const unescape = (text: string) =>
+    hexDecode(
+        Object.keys(jsonSpecCode).reduce(
+            (str, k) => str.replace(new RegExp(hexEncode(jsonSpecCode[k]), "gm"), k),
+            hexEncode(text),
+        ),
+    )
+
+const quotedPrintableEncode = (text: string): string => {
+    return Array.from(text)
+        .map((c) => {
+            const unicode = c.codePointAt(0) || -1
+
+            if ((unicode >= 33 && unicode <= 60) || (unicode >= 62 && unicode <= 126)) {
+                return c
+            } else {
+                return urlEncode(c).replaceAll("%", "=")
+            }
+        })
+        .join("")
+}
+
+const quotedPrintableDecode = (text: string): string =>
+    decodeURIComponent(text.replace(/=([0-9A-F]{2})/g, (_m, hex) => `%${hex}`).replace(/=\s/g, ""))
+
+// TODO SQL排版，代码排版
 export default [
     { type: "coder", label: "Escape编码", handler: encodeURIComponent },
     { type: "coder", label: "Escape解码", handler: decodeURIComponent },
     { type: "coder", label: "Url编码", handler: urlEncode },
     { type: "coder", label: "Url解码", handler: decodeURIComponent },
+    { type: "coder", label: "邮件QP编码", handler: quotedPrintableEncode },
+    { type: "coder", label: "邮件QP解码", handler: quotedPrintableDecode },
     { type: "coder", label: "Base64编码", handler: base64Encode },
     { type: "coder", label: "Base64解码", handler: base64Decode },
     { type: "coder", label: "Hex编码", handler: hexEncode },
@@ -202,8 +252,8 @@ export default [
     { type: "coder", label: "Json压缩", handler: jsonCompress },
     { type: "coder", label: "qs转json", handler: queryString2Json },
     { type: "coder", label: "json转qs", handler: json2QueryString },
+    { type: "coder", label: "转义", handler: escape },
+    { type: "coder", label: "反转义", handler: unescape },
     { type: "coder", label: "参数分行", handler: paramSplit },
     { type: "coder", label: "参数并行", handler: paramJoin },
-    { type: "coder", label: "邮件编码", handler: "quotePrintEncode" },
-    { type: "coder", label: "邮件解码", handler: "quotePrintDecode" },
 ]

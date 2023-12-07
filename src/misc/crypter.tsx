@@ -190,7 +190,7 @@ export default [
     { type: "crypter", label: "SHA-1", handler: sha1 },
     { type: "crypter", label: "SHA-256", handler: sha256 },
     { type: "crypter", label: "SHA-512", handler: sha512 },
-    { type: "crypter", label: "AES", handler: showConfig, helper: crypto.AES },
-    { type: "crypter", label: "DES", handler: showConfig, helper: crypto.DES },
-    { type: "crypter", label: "3DES", handler: showConfig, helper: crypto.TripleDES },
+    { type: "crypter", label: "AES", handler: showConfig, configurable: true, helper: crypto.AES },
+    { type: "crypter", label: "DES", handler: showConfig, configurable: true, helper: crypto.DES },
+    { type: "crypter", label: "3DES", handler: showConfig, configurable: true, helper: crypto.TripleDES },
 ]

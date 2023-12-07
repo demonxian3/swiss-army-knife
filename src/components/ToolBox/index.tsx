@@ -31,24 +31,29 @@ const Toolbox = () => {
         )
     }
 
-    const handleCoding = (item: { label: string; handler: Function; helper?: Function }) => () => {
-        try {
-            if (item.handler.name === "showConfig") {
-                item.handler(setSettingDom, handleCoding, item, isLaptop)
-                return
-            }
+    // 二阶函数
+    const handleCoding =
+        (item: { label: string; handler: Function; helper?: Function; configurable: boolean }) =>
+        () => {
+            try {
+                // 显示配置界面
+                if (item?.configurable) {
+                    item.handler(setSettingDom, handleCoding, item, isLaptop)
+                    return
+                } else {
+                    setSettingDom(null)
+                }
 
-            if (!item?.helper) {
-                setSettingDom(null)
-            }
+                // 触发方法（纯函数？）
+                const res = item.handler(gs.data)
 
-            const res = item.handler(gs.data)
-            gs.setData(res, item.label)
-        } catch (e: any) {
-            console.error(e)
-            message.error(e.toString())
+                // 更新mobx值
+                gs.setData(res, item.label)
+            } catch (e: any) {
+                console.error(e)
+                message.error(e.toString())
+            }
         }
-    }
 
     return (
         <div className={`relative h-full`} style={{ transition: "width 0.3s ease-in-out" }}>
