@@ -183,30 +183,40 @@ const queryString2Json = (text: string) => {
     return jsonFormat(JSON.stringify(qs.parse(text.replace(/\s/g, ""))))
 }
 
-const jsonSpecCode = new Map(
-    Object.entries({
-        34: 34, // \"
-        92: 92, // \\
-        47: 47, // \/
-        8: 98, // \b
-        12: 102, // \f
-        10: 110, // \n
-        13: 114, // \r
-        9: 116, // \t
-    }),
-)
+const codeMap = new Map([
+    [8, 98],
+    [9, 116],
+    [10, 110],
+    [12, 102],
+    [13, 114],
+    [34, 34],
+    [47, 47],
+    [92, 92],
+])
 
 // 按json格式转义
-const escape = (text: string) => Array.from(new TextEncoder().encode(text))
-
-
-const unescape = (text: string) =>
-    hexDecode(
-        Object.keys(jsonSpecCode).reduce(
-            (str, k) => str.replace(new RegExp(hexEncode(jsonSpecCode[k]), "gm"), k),
-            hexEncode(text),
+const escape = (text: string) =>
+    new TextDecoder().decode(
+        Uint8Array.from(
+            Array.from(new TextEncoder().encode(text))
+                .map((c) => {
+                    const r = codeMap.get(c)
+                    if (r) {
+                        return [92, r]
+                    }
+                    return c
+                })
+                .flat(),
         ),
     )
+
+// const unescape = (text: string) =>
+//     hexDecode(
+//         Object.keys(jsonSpecCode).reduce(
+//             (str, k) => str.replace(new RegExp(hexEncode(jsonSpecCode[k]), "gm"), k),
+//             hexEncode(text),
+//         ),
+//     )
 
 const quotedPrintableEncode = (text: string): string => {
     return Array.from(text)
