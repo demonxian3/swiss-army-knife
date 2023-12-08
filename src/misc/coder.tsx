@@ -1,6 +1,22 @@
 import dayjs from "dayjs"
 import qs from "qs"
 
+const codePair = [
+    [0x08, 0x62],
+    [0x09, 0x74],
+    [0x0a, 0x6e],
+    [0x0c, 0x66],
+    [0x0d, 0x72],
+    [0x22, 0x22],
+    [0x2f, 0x2f],
+    [0x5c, 0x5c],
+]
+
+const signMap = new Map<number, number>(codePair as Iterable<readonly [number, number]>)
+const codeMap = new Map<number, number>(
+    codePair.map((i) => [i[1], i[0]]) as Iterable<readonly [number, number]>,
+)
+
 // encodeURIComponent 对于字母会跳过编码，因此编写函数补充字母等相关编码
 const urlEncode = (text: string) => {
     let skip = -1
@@ -183,16 +199,7 @@ const queryString2Json = (text: string) => {
     return jsonFormat(JSON.stringify(qs.parse(text.replace(/\s/g, ""))))
 }
 
-const codeMap = new Map([
-    [8, 98],
-    [9, 116],
-    [10, 110],
-    [12, 102],
-    [13, 114],
-    [34, 34],
-    [47, 47],
-    [92, 92],
-])
+const removeByReg = (spaceSign: RegExp) => (text: string) => text.replace(spaceSign, "")
 
 // 按json格式转义
 const escape = (text: string) =>
@@ -200,9 +207,9 @@ const escape = (text: string) =>
         Uint8Array.from(
             Array.from(new TextEncoder().encode(text))
                 .map((c) => {
-                    const r = codeMap.get(c)
+                    const r = signMap.get(c)
                     if (r) {
-                        return [92, r]
+                        return [0x5c, r]
                     }
                     return c
                 })
@@ -210,13 +217,13 @@ const escape = (text: string) =>
         ),
     )
 
-// const unescape = (text: string) =>
-//     hexDecode(
-//         Object.keys(jsonSpecCode).reduce(
-//             (str, k) => str.replace(new RegExp(hexEncode(jsonSpecCode[k]), "gm"), k),
-//             hexEncode(text),
-//         ),
-//     )
+const unescape = (text: string) =>
+    Array.from(codeMap.keys()).reduce((str, c) => {
+        return str.replace(
+            new RegExp("\\\\" + (c === 0x5c ? "\\\\" : String.fromCodePoint(c)), "gm"),
+            String.fromCodePoint(codeMap.get(c) as number),
+        )
+    }, text)
 
 const quotedPrintableEncode = (text: string): string => {
     return Array.from(text)
@@ -251,14 +258,19 @@ export default [
     { type: "coder", label: "Unicode解码", handler: unicodeDecode },
     { type: "coder", label: "实体编码", handler: entityEncode },
     { type: "coder", label: "实体解码", handler: entityDecode },
-    { type: "coder", label: "转时间戳", handler: toTimestamp },
-    { type: "coder", label: "转日期时间", handler: toDatetime },
-    { type: "coder", label: "Json排版", handler: jsonFormat },
-    { type: "coder", label: "Json压缩", handler: jsonCompress },
-    { type: "coder", label: "qs转json", handler: queryString2Json },
-    { type: "coder", label: "json转qs", handler: json2QueryString },
-    { type: "coder", label: "转义", handler: escape },
-    { type: "coder", label: "反转义", handler: unescape },
-    { type: "coder", label: "参数分行", handler: paramSplit },
-    { type: "coder", label: "参数并行", handler: paramJoin },
+
+    { type: "formatter", label: "转时间戳", handler: toTimestamp },
+    { type: "formatter", label: "转日期时间", handler: toDatetime },
+    { type: "formatter", label: "Json排版", handler: jsonFormat },
+    { type: "formatter", label: "Json压缩", handler: jsonCompress },
+    { type: "formatter", label: "Qs转json", handler: queryString2Json },
+    { type: "formatter", label: "Json转qs", handler: json2QueryString },
+    { type: "formatter", label: "SQL排版", handler: noImplemented },
+    { type: "formatter", label: "SQL压缩", handler: noImplemented },
+    { type: "formatter", label: "转义", handler: escape },
+    { type: "formatter", label: "反转义", handler: unescape },
+    { type: "formatter", label: "参数分行", handler: paramSplit },
+    { type: "formatter", label: "参数并行", handler: paramJoin },
+    { type: "formatter", label: "去除空格", handler: removeByReg(/ /g) },
+    { type: "formatter", label: "去除空白", handler: removeByReg(/\s/g) },
 ]
