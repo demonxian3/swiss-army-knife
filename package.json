@@ -23,7 +23,6 @@
     "qs": "^6.11.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-json-view": "^1.21.3",
     "react-router-dom": "^6.11.1",
     "react-use": "^17.4.2",
     "vanilla-jsoneditor": "^0.20.0"

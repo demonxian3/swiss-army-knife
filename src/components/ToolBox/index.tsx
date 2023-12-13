@@ -1,7 +1,7 @@
 import { useState, useMemo, ReactElement, useCallback } from "react"
 import { Button, Typography, message } from "antd"
 import { tools } from "@/misc/index"
-import { chain } from "lodash"
+import { chain, omit, last, get, set } from "lodash"
 import { observer } from "mobx-react-lite"
 import { useStore } from "@/stores"
 import "./index.less" // 样式文件可以自定义
@@ -12,7 +12,7 @@ import { isString, isNumber } from "lodash"
 
 // const randomHue = Math.floor(Math.random() * 360)
 const Toolbox = () => {
-    const [activeTool, setActiveTool] = useState("crypter")
+    const [activeTool, setActiveTool] = useState("coder")
     const [settingDom, setSettingDom] = useState<ReactElement | null>(null)
     const { globalStore: gs } = useStore()
     const location = useLocation()
@@ -47,12 +47,12 @@ const Toolbox = () => {
                 throw new Error("当前Json编辑器没有选中要修改的值，无法操作")
             }
 
-            if (gs.jsonSelection.type === "key") {
-                return gs.jsonSelection.path.slice(-1).pop()
-            } else if (gs.jsonSelection.type === "value") {
-                const jsonData = JSON.parse(gs.dataSource)
-                const value = gs.jsonSelection.path.reduce((v, p) => v[p], jsonData)
+            const jsonData = JSON.parse(gs.dataSource)
 
+            if (gs.jsonSelection.type === "key") {
+                return last(gs.jsonSelection.path)
+            } else if (gs.jsonSelection.type === "value") {
+                const value = get(jsonData, gs.jsonSelection.path)
                 if (![isNumber, isString].some((fn) => fn(value))) {
                     throw new Error("当前仅支持对字符串和数字类型的值进行操作")
                 }
@@ -60,32 +60,48 @@ const Toolbox = () => {
                 return value
             }
         }
+
+        return ""
     }, [location.pathname, gs.jsonSelection])
 
-    const setAreaData = useCallback(() => {
-        if (isDataArea) {
-            return gs.data
-        }
-
-        if (isJsonArea) {
-            if (!gs.jsonSelection) {
-                throw new Error("当前Json编辑器没有选中要修改的值，无法操作")
+    const setAreaData = useCallback(
+        (text: string) => {
+            if (isDataArea) {
+                return gs.setData(text)
             }
 
-            if (gs.jsonSelection.type === "key") {
-                return gs.jsonSelection.path.slice(-1).pop()
-            } else if (gs.jsonSelection.type === "value") {
-                const jsonData = JSON.parse(gs.dataSource)
-                const value = gs.jsonSelection.path.reduce((v, p) => v[p], jsonData)
-
-                if (![isNumber, isString].some((fn) => fn(value))) {
-                    throw new Error("当前仅支持对字符串和数字类型的值进行操作")
+            if (isJsonArea) {
+                if (!gs.jsonSelection) {
+                    throw new Error("当前Json编辑器没有选中要修改的值，无法操作")
                 }
 
-                return value
+                const jsonData = JSON.parse(gs.dataSource)
+                const value = get(jsonData, gs.jsonSelection.path)
+
+                if (gs.jsonSelection.type === "key") {
+                    // 设置新的key
+                    const newPath = gs.jsonSelection.path.slice()
+                    newPath[newPath.length - 1] = text
+
+                    const newObj = set(omit(jsonData, gs.jsonSelection.path), newPath, value)
+                    const newVal = JSON.stringify(newObj, null, 4)
+
+                    gs.setJsonSelection({ ...gs.jsonSelection, path: newPath })
+                    gs.setDataSource(newVal)
+                    return newVal
+                } else if (gs.jsonSelection.type === "value") {
+                    const newObj = set(jsonData, gs.jsonSelection.path, text)
+                    const newVal = JSON.stringify(newObj, null, 4)
+
+                    gs.setDataSource(newVal)
+                    return text
+                }
             }
-        }
-    }, [location.pathname, gs.jsonSelection])
+
+            return ""
+        },
+        [location.pathname, gs.jsonSelection],
+    )
 
     // 二阶函数
     const handleCoding =
@@ -109,11 +125,9 @@ const Toolbox = () => {
                 }
 
                 // 更新mobx值
-                const text = gs.setData(res)
-
+                const text = setAreaData(res)
                 // 增加历史记录
                 gs.addHistoryItem(text, item.label)
-
             } catch (e: any) {
                 console.error(e)
                 message.error(e.toString())
@@ -132,8 +146,8 @@ const Toolbox = () => {
                     </button>
                     {buildToolBtn("coder", "编码解码")}
                     {buildToolBtn("crypter", "加密解密")}
-                    {buildToolBtn("other", "杂项功能")}
-                    {buildToolBtn("formatter", "格式排版")}
+                    {/* {buildToolBtn("other", "杂项功能")}
+                    {buildToolBtn("formatter", "格式排版")} */}
                 </div>
                 <div className="w-full">
                     <table className="w-full">

@@ -5,9 +5,11 @@ import { observer } from "mobx-react-lite"
 import { message } from "antd"
 import { jsonFormat } from "@/misc/coder"
 import "./index.less"
+import { useUpdateEffect } from "ahooks"
+import { isEqual } from "lodash"
 
 const JsonEditor = () => {
-    const [editor, setEditor] = useState<object | null>(null)
+    const [editor, setEditor] = useState<any | null>(null)
     const editorRef = useRef<HTMLDivElement | null>(null)
     const { globalStore: gs } = useStore()
 
@@ -31,9 +33,9 @@ const JsonEditor = () => {
                 onSelect: (selection: any) => {
                     if (selection) {
                         console.log("onSelect", selection)
-                        const { type, path } = selection
+                        const { type } = selection
                         if (["key", "value"].includes(type)) {
-                            gs.setJsonSelection({ type, path })
+                            gs.setJsonSelection(selection)
                         } else {
                             gs.setJsonSelection(null)
                         }
@@ -54,6 +56,19 @@ const JsonEditor = () => {
         console.log(editor)
         setEditor(editor)
     }, [])
+
+    // 监听 dataSource ，使用 editor.update的副作用更新jsonEditor的值
+    useEffect(() => {
+        if (editor && editor?.get()?.json && gs.dataSource) {
+            if (!isEqual(editor?.get()?.json, JSON.parse(gs.dataSource))) {
+                editor.update(content)
+                if (gs.jsonSelection?.type === "key") {
+                    editor.select(gs.jsonSelection)
+                }
+                console.log("update", gs.dataSource, content)
+            }
+        }
+    }, [gs.dataSource])
 
     return (
         <div
