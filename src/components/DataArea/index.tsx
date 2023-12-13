@@ -16,6 +16,7 @@ const DataArea = () => {
 
     return (
         <Input.TextArea
+            id="dataArea"
             onPaste={handlePaste}
             onChange={(e) => gs.setDataSource(e.target.value)}
             className={`${isLaptop ? "text-size-14px" : "text-size-16px"} break-all w-full !h-full`}

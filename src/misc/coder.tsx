@@ -157,7 +157,7 @@ const highlightJsonError = (error: any) => {
     throw new Error(error.toString())
 }
 
-const jsonFormat = (text: string): string => {
+export const jsonFormat = (text: string): string => {
     try {
         const trimmedInput = text.trim()
         const parsedJSON = JSON.parse(trimmedInput)
@@ -168,7 +168,7 @@ const jsonFormat = (text: string): string => {
     }
 }
 
-const jsonCompress = (text: string): string => {
+export const jsonCompress = (text: string): string => {
     try {
         const trimmedInput = text.trim()
         const parsedJSON = JSON.parse(trimmedInput)
@@ -241,6 +241,7 @@ const quotedPrintableEncode = (text: string): string => {
 
 const quotedPrintableDecode = (text: string): string =>
     decodeURIComponent(text.replace(/=([0-9A-F]{2})/g, (_m, hex) => `%${hex}`).replace(/=\s/g, ""))
+
 
 // TODO SQL排版，代码排版
 export default [

@@ -2,6 +2,8 @@
 import { RouteObject } from "react-router-dom"
 import Base from "@/layouts/base/index"
 import Home from "@/pages/home/index"
+// import JsonEditor from "@/pages/jsonEditor/index"
+import JsonEditor from "@/pages/json/index"
 import NotFound from "@/pages/error/notFound"
 
 const routes: RouteObject[] = [
@@ -10,9 +12,14 @@ const routes: RouteObject[] = [
         element: <Base />,
         children: [
             {
-                path: '/home',
-                element: <Home />
+                path: "/home",
+                element: <Home />,
             },
+            {
+                path: "/json",
+                element: <JsonEditor />,
+            },
+           
         ],
     },
     {

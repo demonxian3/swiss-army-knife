@@ -1,14 +1,19 @@
-import {
-    BarChartOutlined,
-    DribbbleOutlined,
-    AppstoreAddOutlined,
-    SettingOutlined,
-} from "@ant-design/icons"
+// import {
+//     BarChartOutlined,
+//     DribbbleOutlined,
+//     AppstoreAddOutlined,
+//     SettingOutlined,
+// } from "@ant-design/icons"
 
 export default  [
     {
         key: "home",
-        label: "首页",
+        label: "文本",
+        // icon: <DribbbleOutlined />,
+    },
+    {
+        key: "json",
+        label: "Json",
         // icon: <DribbbleOutlined />,
     },
     {

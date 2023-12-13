@@ -15,6 +15,7 @@ import dayjs from "dayjs"
 import "./index.less" // 样式文件可以自定义
 
 // TODO 收藏，搜索
+// TODO 经过实体编码解码后的json会出现无法正常解析
 const HistoryPanel = () => {
     const { globalStore: gs } = useStore()
     const { width: screenWidth } = useWindowSize()

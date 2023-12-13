@@ -1,6 +1,7 @@
 import { makeAutoObservable } from "mobx"
 import enUS from "antd/locale/en_US"
 import zhCN from "antd/locale/zh_CN"
+import { SELECTOR_DATAAREA } from "@/configs/constant"
 
 class GlobalStore {
     localeKey = "cn"
@@ -10,13 +11,14 @@ class GlobalStore {
     toolBoxExpand = true
     historyExpand = false
     historyActiveKey = -1
+    jsonSelection: { type: string; path: string[] } | null = null
     dataSource = `{
         "url": "https://www.example.com:8080/path/to/page?name=John&age=25#section1",
         "stringVar": "Hello, World!",
         "numberVar": 42,
         "booleanVar": true,
         "nullVar": null,
-        "undefinedVar": undefined,
+        "undefinedVar": null,
         "arrayVar": [1, "two", false, null],
         "objectVar": {
           "key1": "value1",
@@ -24,11 +26,15 @@ class GlobalStore {
           "key3": true,
           "key4": null
         }
-      }，1701659378018，Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools。Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools。Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools。`
+      }`
     historyStack: { time: number; text: string; label: string }[] = []
 
     constructor() {
         makeAutoObservable(this)
+    }
+
+    setJsonSelection(selection: { type: string; path: string[] } | null) {
+        this.jsonSelection = selection
     }
 
     addHistoryItem(text: string, label: string) {
@@ -66,10 +72,12 @@ class GlobalStore {
         this.dataSource = text
     }
 
-    getSelectionInfo() {
-        const elem = document.querySelector("textarea")
+    getSelectionInfo(selector: string = "") {
+        const elem = selector
+            ? (document.querySelector(selector) as HTMLTextAreaElement)
+            : (document.activeElement as HTMLTextAreaElement)
 
-        if (!elem) {
+        if (!elem || !(elem instanceof HTMLTextAreaElement)) {
             return { elem: null, start: 0, end: 0, selectText: "", hasSelection: false }
         }
 
@@ -79,17 +87,39 @@ class GlobalStore {
         return { elem, start, end, selectText, hasSelection: selectText.length && end > start }
     }
 
-    setData(replaceText: string, label: string) {
-        const { elem, start, end, hasSelection } = this.getSelectionInfo()
-
-        // 当历史为空，将初始数据作为历史记录首条
-        if (!this.historyStack.length) {
-            this.addHistoryItem(this.dataSource, "初始数据")
-        }
+    setData(replaceText: string): string {
+        const { elem, start, end, hasSelection } = this.getSelectionInfo(SELECTOR_DATAAREA)
 
         if (hasSelection) {
             const newText = elem!.value.slice(0, start) + replaceText + elem!.value.slice(end)
             this.setDataSource(newText)
+
+            setTimeout(() => {
+                elem!.focus()
+                elem!.setSelectionRange(start, start + replaceText.length)
+            }, 1)
+
+            return newText
+        }
+
+        this.setDataSource(replaceText)
+        return replaceText
+    }
+
+    setDomData(selector: string, replaceText: string, label: string) {
+        const { elem, start, end, hasSelection } = this.getSelectionInfo(selector)
+
+        if (!(elem instanceof HTMLTextAreaElement)) {
+            throw new Error("当前没有选中的Textarea组件, 无法修改")
+        }
+
+        if (!this.historyStack.length) {
+            this.addHistoryItem(this.getDomData(selector), "初始数据")
+        }
+
+        if (hasSelection) {
+            const newText = elem.value.slice(0, start) + replaceText + elem!.value.slice(end)
+            elem.value = newText
             this.addHistoryItem(newText, label)
 
             setTimeout(() => {
@@ -97,9 +127,20 @@ class GlobalStore {
                 elem!.setSelectionRange(start, start + replaceText.length)
             }, 1)
         } else {
-            this.setDataSource(replaceText)
+            elem.value = replaceText
             this.addHistoryItem(replaceText, label)
         }
+    }
+
+    getDomData(selector: string) {
+        const elements = Array.from(document.querySelectorAll(selector)) as HTMLTextAreaElement[]
+
+        if (elements.length !== 1) {
+            throw new Error("所选的textarea不唯一或为空")
+            return ""
+        }
+
+        return elements[0].value
     }
 
     getToolboxWidth(isLaptop = false) {
@@ -163,7 +204,7 @@ class GlobalStore {
     }
 
     get data() {
-        const { selectText, hasSelection } = this.getSelectionInfo()
+        const { selectText, hasSelection } = this.getSelectionInfo(SELECTOR_DATAAREA)
         return hasSelection ? selectText : this.dataSource
     }
 }
