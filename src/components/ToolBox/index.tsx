@@ -94,7 +94,7 @@ const Toolbox = () => {
                     const newVal = JSON.stringify(newObj, null, 4)
 
                     gs.setDataSource(newVal)
-                    return text
+                    return newVal
                 }
             }
 
@@ -140,14 +140,15 @@ const Toolbox = () => {
                 <div className="w-28px h-full">
                     <button
                         onClick={() => gs.toggleToolExpand()}
-                        className={`w-26px text-blue-600 text-white text-xl `}
+                        className={`w-26px text-blue-600 text-xl `}
                     >
                         {gs.toolBoxExpand ? <MenuFoldOutlined /> : <MenuUnfoldOutlined />}
                     </button>
                     {buildToolBtn("coder", "编码解码")}
+                    {buildToolBtn("convert", "格式转换")}
                     {buildToolBtn("crypter", "加密解密")}
-                    {/* {buildToolBtn("other", "杂项功能")}
-                    {buildToolBtn("formatter", "格式排版")} */}
+                    {/* {buildToolBtn("other", "杂项功能")} */}
+                    {/* {buildToolBtn("formatter", "格式排版")} */}
                 </div>
                 <div className="w-full">
                     <table className="w-full">

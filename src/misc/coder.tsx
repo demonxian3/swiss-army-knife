@@ -242,7 +242,6 @@ const quotedPrintableEncode = (text: string): string => {
 const quotedPrintableDecode = (text: string): string =>
     decodeURIComponent(text.replace(/=([0-9A-F]{2})/g, (_m, hex) => `%${hex}`).replace(/=\s/g, ""))
 
-
 // TODO SQL排版，代码排版
 export default [
     { type: "coder", label: "Escape编码", handler: encodeURIComponent },
@@ -263,14 +262,14 @@ export default [
     { type: "coder", label: "转日期时间", handler: toDatetime },
     { type: "coder", label: "Json排版", handler: jsonFormat },
     { type: "coder", label: "Json压缩", handler: jsonCompress },
-    { type: "coder", label: "Qs转json", handler: queryString2Json },
-    { type: "coder", label: "Json转qs", handler: json2QueryString },
-    { type: "coder", label: "SQL排版", handler: noImplemented },
-    { type: "coder", label: "SQL压缩", handler: noImplemented },
+    // { type: "coder", label: "SQL排版", handler: noImplemented },
+    // { type: "coder", label: "SQL压缩", handler: noImplemented },
     { type: "coder", label: "转义", handler: escape },
     { type: "coder", label: "反转义", handler: unescape },
     { type: "coder", label: "参数分行", handler: paramSplit },
     { type: "coder", label: "参数并行", handler: paramJoin },
     { type: "coder", label: "去除空格", handler: removeByReg(/ /g) },
     { type: "coder", label: "去除空白", handler: removeByReg(/\s/g) },
+    { type: "convert", label: "param转json", handler: queryString2Json },
+    { type: "convert", label: "Json转param", handler: json2QueryString },
 ]

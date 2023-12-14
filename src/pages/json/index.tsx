@@ -19,7 +19,7 @@ const JsonEditor = () => {
         try {
             return { json: JSON.parse(gs.dataSource), text: undefined }
         } catch {
-            message.error("Json解析失败，请检查json格式是否有误")
+            message.error("Json解析失败，无法加载，请检查json格式是否有误")
 
             return { json: undefined, text: undefined }
         }
@@ -59,14 +59,17 @@ const JsonEditor = () => {
 
     // 监听 dataSource ，使用 editor.update的副作用更新jsonEditor的值
     useEffect(() => {
-        if (editor && editor?.get()?.json && gs.dataSource) {
-            if (!isEqual(editor?.get()?.json, JSON.parse(gs.dataSource))) {
-                editor.update(content)
-                if (gs.jsonSelection?.type === "key") {
-                    editor.select(gs.jsonSelection)
+        try {
+            if (editor && editor?.get()?.json && gs.dataSource) {
+                if (!isEqual(editor?.get()?.json, JSON.parse(gs.dataSource))) {
+                    editor.update(content)
+                    if (gs.jsonSelection?.type === "key") {
+                        editor.select(gs.jsonSelection)
+                    }
+                    console.log("update", gs.dataSource, content)
                 }
-                console.log("update", gs.dataSource, content)
             }
+        } catch {
         }
     }, [gs.dataSource])
 

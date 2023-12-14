@@ -1,5 +1,5 @@
-import { useEffect, useMemo } from "react"
-import { List, Typography, Space, Tooltip, message } from "antd"
+import { useEffect, useMemo, useState } from "react"
+import { List, Typography, Space, Tooltip, Segmented, Input, message } from "antd"
 import { observer } from "mobx-react-lite"
 import { useStore } from "@/stores"
 import {
@@ -9,18 +9,28 @@ import {
     PlusCircleOutlined,
     CloseCircleOutlined,
 } from "@ant-design/icons"
-import { useWindowSize } from "react-use"
+import { useWindowSize, useLocalStorage } from "react-use"
 import dayjs from "dayjs"
 
 import "./index.less" // 样式文件可以自定义
+import { identity, isEqual, orderBy, pullAt } from "lodash"
 
-// TODO 收藏，搜索
 // TODO 经过实体编码解码后的json会出现无法正常解析
 // TODO Base64存在其他字符时无法使用
+interface historyItem {
+    time: number
+    text: string
+    label: string
+}
+
 const HistoryPanel = () => {
     const { globalStore: gs } = useStore()
     const { width: screenWidth } = useWindowSize()
+    const [mode, setMode] = useState("history")
+    const [keywords, setKeywords] = useState("")
+    const [historyStorage, setHistoryStorage] = useLocalStorage<historyItem[]>("historyStorage", [])
     const isLaptop = useMemo(() => screenWidth <= 1440, [screenWidth])
+    const isHistoryMode = useMemo(() => mode === "history", [mode])
 
     const handleRollback = (item: { text: string }, idx: number) => {
         gs.setHistoryActiveKey(idx)
@@ -34,9 +44,23 @@ const HistoryPanel = () => {
         })
     }
 
+    const handleCollect = (e: React.MouseEvent, item: historyItem) => {
+        e.stopPropagation()
+        if (!historyStorage?.some((i) => isEqual(i, item))) {
+            setHistoryStorage(historyStorage?.concat(item))
+            message.success("收藏成功")
+        }
+    }
+
     const handleDelete = (e: React.MouseEvent, idx: number) => {
         e.stopPropagation()
-        gs.delHistoryItem(idx)
+        if (isHistoryMode) {
+            gs.delHistoryItem(idx)
+        } else {
+            const list = historyStorage?.slice()
+            list?.splice(idx, 1)
+            setHistoryStorage(list)
+        }
     }
 
     const getItemStyle = (idx: number) => {
@@ -57,6 +81,19 @@ const HistoryPanel = () => {
         return { backgroundColor }
     }
 
+    const getDataSource = useMemo(() => {
+        const searchFn = keywords
+            ? (item: historyItem) =>
+                  `${dayjs(item.time).format("YYYY-MM-DD HH:mm:ss")}${item.label}${
+                      item.text
+                  }`.includes(keywords)
+            : identity
+
+        return isHistoryMode
+            ? gs.historyStack.filter(searchFn)
+            : orderBy(historyStorage?.filter(searchFn), ["time"], ["desc"])
+    }, [mode, keywords, gs.historyStack])
+
     // TODO 不加上此代码点击触发handleRollback样式不会更新！
     useEffect(() => {}, [gs.historyActiveKey])
 
@@ -65,18 +102,33 @@ const HistoryPanel = () => {
             <Space className={`!text-12px ${isLaptop ? "w-280px" : "w-320px"}`}>
                 <button
                     onClick={() => gs.toggleHistoryExpand()}
-                    className={`w-26px text-red-600 text-white text-xl `}
+                    className={`w-26px text-red-600 text-xl `}
                 >
                     {gs.historyExpand ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
                 </button>
                 <Typography className="text-gray-500 font-bold">操作历史</Typography>
+                <Segmented
+                    value={mode}
+                    onChange={setMode as any}
+                    size="small"
+                    options={[
+                        { label: "历史", value: "history" },
+                        { label: "收藏", value: "collect" },
+                    ]}
+                />
             </Space>
-            <div className={` h-95/100 overflow-x-hidden overflow-y-scroll history-scroll`}>
+            <Input
+                size="small"
+                onChange={(e) => setKeywords(e.target.value)}
+                value={keywords}
+                placeholder="输入关键字搜索"
+            />
+            <div className={` h-90/100 overflow-x-hidden overflow-y-scroll history-scroll`}>
                 <List
                     size="small"
                     className={`!text-12px ${isLaptop ? "w-280px" : "w-320px"}`}
                     itemLayout="horizontal"
-                    dataSource={gs.historyStack}
+                    dataSource={getDataSource}
                     renderItem={(item, idx) => (
                         <List.Item
                             key={idx}
@@ -92,14 +144,21 @@ const HistoryPanel = () => {
                                                     "YYYY-MM-DD HH:mm:ss",
                                                 )}
                                             >
-                                                {dayjs(item.time).format("mm:ss")}
+                                                {dayjs(item.time).format("HH:mm")}
                                             </Tooltip>{" "}
                                             {item.label}
                                         </Typography>
                                         <Space>
-                                            <Tooltip title="收藏">
-                                                <PlusCircleOutlined className="text-16px text-yellow-500 cursor-pointer" />
-                                            </Tooltip>
+                                            {isHistoryMode &&
+                                                !historyStorage?.some((i) => isEqual(i, item)) && (
+                                                    <Tooltip title="收藏">
+                                                        <PlusCircleOutlined
+                                                            onClick={(e) => handleCollect(e, item)}
+                                                            className="text-16px text-yellow-500 cursor-pointer"
+                                                        />
+                                                    </Tooltip>
+                                                )}
+
                                             <Tooltip title="拷贝">
                                                 <CopyrightOutlined
                                                     onClick={(e) => handleCopy(e, item.text)}

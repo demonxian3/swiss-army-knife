@@ -4,6 +4,7 @@ import Base from "@/layouts/base/index"
 import Home from "@/pages/home/index"
 // import JsonEditor from "@/pages/jsonEditor/index"
 import JsonEditor from "@/pages/json/index"
+import DiffEditor from "@/pages/diff/index"
 import NotFound from "@/pages/error/notFound"
 
 const routes: RouteObject[] = [
@@ -19,7 +20,10 @@ const routes: RouteObject[] = [
                 path: "/json",
                 element: <JsonEditor />,
             },
-           
+            {
+                path: "/diff",
+                element: <DiffEditor />,
+            },
         ],
     },
     {

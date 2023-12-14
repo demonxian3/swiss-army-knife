@@ -3,6 +3,7 @@ import { useStore } from "@/stores"
 import { Input } from "antd"
 import { observer } from "mobx-react-lite"
 import { useWindowSize } from "react-use"
+import "./index.less"
 
 const DataArea = () => {
     const { globalStore: gs } = useStore()
@@ -16,10 +17,9 @@ const DataArea = () => {
 
     return (
         <Input.TextArea
-            id="dataArea"
             onPaste={handlePaste}
             onChange={(e) => gs.setDataSource(e.target.value)}
-            className={`${isLaptop ? "text-size-14px" : "text-size-16px"} break-all w-full !h-full`}
+            className={`${isLaptop ? "text-size-14px" : "text-size-16px"} data-area break-all w-full !h-full ${gs.isDarkMode ? "data-theme-dark" : "data-theme-light"}`}
             value={gs.dataSource}
         />
     )

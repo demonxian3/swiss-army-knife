@@ -8,7 +8,7 @@ class GlobalStore {
     localeLang = zhCN
     themeTag = "light"
     themeKey = "rds_theme"
-    toolBoxExpand = true
+    toolBoxExpand = false
     historyExpand = false
     historyActiveKey = -1
     jsonSelection: { type: string; path: string[] } | null = null

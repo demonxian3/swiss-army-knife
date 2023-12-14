@@ -17,6 +17,11 @@ export default  [
         // icon: <DribbbleOutlined />,
     },
     {
+        key: "diff",
+        label: "对比",
+        // icon: <DribbbleOutlined />,
+    },
+    {
         key: "settings",
         label: "设置",
         // icon: <SettingOutlined />,
