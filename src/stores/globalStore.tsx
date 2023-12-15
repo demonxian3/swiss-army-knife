@@ -12,6 +12,10 @@ class GlobalStore {
     historyExpand = false
     historyActiveKey = -1
     jsonSelection: { type: string; path: string[] } | null = null
+    editorRef: any = null
+    monacoRef: any = null
+    editorSelection: any = null
+    dataSourceUpdater: Function = (fn: Function) => (text: string) => this.setDataSource(fn(text))
     dataSource = `{
         "url": "https://www.example.com:8080/path/to/page?name=John&age=25#section1",
         "stringVar": "Hello, World!",
@@ -31,6 +35,10 @@ class GlobalStore {
 
     constructor() {
         makeAutoObservable(this)
+    }
+
+    setDataSourceUpdater = (updater: any) => {
+        this.dataSourceUpdater = updater
     }
 
     setJsonSelection(selection: { type: string; path: string[] } | null) {

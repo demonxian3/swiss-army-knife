@@ -37,71 +37,47 @@ const Toolbox = () => {
     const isDataArea = location.pathname === "/home"
     const isJsonArea = location.pathname === "/json"
 
-    const getAreaData = useCallback(() => {
-        if (isDataArea) {
-            return gs.data
+    // 编辑器界面
+    const handleDataArea = (handler: Function, label: string) => {
+        // 由编辑器API修改 dataSource
+        gs.dataSourceUpdater(handler)
+        setTimeout(() => {
+            gs.addHistoryItem(gs.dataSource, label)
+        }, 1)
+    }
+
+    // Json编辑器
+    const handleJsonArea = (handler: Function, label: string) => {
+        debugger
+        if (!gs.jsonSelection) {
+            throw new Error("当前Json编辑器没有选中要修改的值，无法操作")
         }
 
-        if (isJsonArea) {
-            if (!gs.jsonSelection) {
-                throw new Error("当前Json编辑器没有选中要修改的值，无法操作")
+        let obj = null
+        const jsonData = JSON.parse(gs.dataSource)
+        const val = get(jsonData, gs.jsonSelection.path)
+        const path = gs.jsonSelection.path.slice()
+
+        // 对 key 进行修改
+        if (gs.jsonSelection.type === "key") {
+            path[path.length - 1] = handler(last(path))
+            obj = set(omit(jsonData, gs.jsonSelection.path), path, val)
+            gs.setJsonSelection({ ...gs.jsonSelection, path: path })
+        } else if (gs.jsonSelection.type === "value") {
+            if (![isString, isNumber].some((f) => f(val))) {
+                throw new Error("目前只支持对数字和字符串类型进行操作")
             }
-
-            const jsonData = JSON.parse(gs.dataSource)
-
-            if (gs.jsonSelection.type === "key") {
-                return last(gs.jsonSelection.path)
-            } else if (gs.jsonSelection.type === "value") {
-                const value = get(jsonData, gs.jsonSelection.path)
-                if (![isNumber, isString].some((fn) => fn(value))) {
-                    throw new Error("当前仅支持对字符串和数字类型的值进行操作")
-                }
-
-                return value
-            }
+            const inp = isString(val) ? val : val.toString()
+            obj = set(jsonData, path, handler(inp))
+        } else {
+            throw new Error("未知的type类型: " + gs.jsonSelection.type)
         }
 
-        return ""
-    }, [location.pathname, gs.jsonSelection])
-
-    const setAreaData = useCallback(
-        (text: string) => {
-            if (isDataArea) {
-                return gs.setData(text)
-            }
-
-            if (isJsonArea) {
-                if (!gs.jsonSelection) {
-                    throw new Error("当前Json编辑器没有选中要修改的值，无法操作")
-                }
-
-                const jsonData = JSON.parse(gs.dataSource)
-                const value = get(jsonData, gs.jsonSelection.path)
-
-                if (gs.jsonSelection.type === "key") {
-                    // 设置新的key
-                    const newPath = gs.jsonSelection.path.slice()
-                    newPath[newPath.length - 1] = text
-
-                    const newObj = set(omit(jsonData, gs.jsonSelection.path), newPath, value)
-                    const newVal = JSON.stringify(newObj, null, 4)
-
-                    gs.setJsonSelection({ ...gs.jsonSelection, path: newPath })
-                    gs.setDataSource(newVal)
-                    return newVal
-                } else if (gs.jsonSelection.type === "value") {
-                    const newObj = set(jsonData, gs.jsonSelection.path, text)
-                    const newVal = JSON.stringify(newObj, null, 4)
-
-                    gs.setDataSource(newVal)
-                    return newVal
-                }
-            }
-
-            return ""
-        },
-        [location.pathname, gs.jsonSelection],
-    )
+        // 增加历史记录
+        const res = JSON.stringify(obj, null, 4)
+        gs.setDataSource(res)
+        gs.addHistoryItem(res, label)
+    }
 
     // 二阶函数
     const handleCoding =
@@ -116,18 +92,16 @@ const Toolbox = () => {
                     setSettingDom(null)
                 }
 
-                // 触发方法（纯函数？）
-                const res = item.handler(getAreaData())
-
                 // 当历史为空，将初始数据作为历史记录首条
                 if (!gs.historyStack.length) {
                     gs.addHistoryItem(gs.dataSource, "初始数据")
                 }
 
-                // 更新mobx值
-                const text = setAreaData(res)
-                // 增加历史记录
-                gs.addHistoryItem(text, item.label)
+                if (isDataArea) {
+                    handleDataArea(item.handler, item.label)
+                } else if (isJsonArea) {
+                    handleJsonArea(item.handler, item.label)
+                }
             } catch (e: any) {
                 console.error(e)
                 message.error(e.toString())

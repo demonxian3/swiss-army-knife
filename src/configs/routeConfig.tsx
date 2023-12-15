@@ -3,8 +3,9 @@ import { RouteObject } from "react-router-dom"
 import Base from "@/layouts/base/index"
 import Home from "@/pages/home/index"
 // import JsonEditor from "@/pages/jsonEditor/index"
+import CodeEditor from "@/pages/code/index"
 import JsonEditor from "@/pages/json/index"
-import DiffEditor from "@/pages/diff/index"
+import DiffEditor2 from "@/pages/diff2/index"
 import NotFound from "@/pages/error/notFound"
 
 const routes: RouteObject[] = [
@@ -21,8 +22,12 @@ const routes: RouteObject[] = [
                 element: <JsonEditor />,
             },
             {
+                path: "/code",
+                element: <CodeEditor />,
+            },
+            {
                 path: "/diff",
-                element: <DiffEditor />,
+                element: <DiffEditor2 />,
             },
         ],
     },
