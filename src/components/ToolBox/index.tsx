@@ -36,19 +36,21 @@ const Toolbox = () => {
 
     const isDataArea = location.pathname === "/home"
     const isJsonArea = location.pathname === "/json"
+    const isDiffArea = location.pathname === "/diff"
 
     // 编辑器界面
     const handleDataArea = (handler: Function, label: string) => {
         // 由编辑器API修改 dataSource
         gs.dataSourceUpdater(handler)
-        setTimeout(() => {
-            gs.addHistoryItem(gs.dataSource, label)
-        }, 1)
+        if (isDataArea) {
+            setTimeout(() => {
+                gs.addHistoryItem(gs.dataSource, label)
+            }, 1)
+        }
     }
 
     // Json编辑器
     const handleJsonArea = (handler: Function, label: string) => {
-        debugger
         if (!gs.jsonSelection) {
             throw new Error("当前Json编辑器没有选中要修改的值，无法操作")
         }
@@ -97,7 +99,7 @@ const Toolbox = () => {
                     gs.addHistoryItem(gs.dataSource, "初始数据")
                 }
 
-                if (isDataArea) {
+                if (isDataArea || isDiffArea) {
                     handleDataArea(item.handler, item.label)
                 } else if (isJsonArea) {
                     handleJsonArea(item.handler, item.label)
@@ -119,8 +121,8 @@ const Toolbox = () => {
                         {gs.toolBoxExpand ? <MenuFoldOutlined /> : <MenuUnfoldOutlined />}
                     </button>
                     {buildToolBtn("coder", "编码解码")}
-                    {buildToolBtn("convert", "格式转换")}
                     {buildToolBtn("crypter", "加密解密")}
+                    {/* {buildToolBtn("convert", "格式转换")} */}
                     {/* {buildToolBtn("other", "杂项功能")} */}
                     {/* {buildToolBtn("formatter", "格式排版")} */}
                 </div>

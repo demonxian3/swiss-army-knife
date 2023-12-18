@@ -31,6 +31,8 @@ class GlobalStore {
           "key4": null
         }
       }`
+    leftDataSource = ""
+    rightDataSource = ""
     historyStack: { time: number; text: string; label: string }[] = []
 
     constructor() {
@@ -78,6 +80,14 @@ class GlobalStore {
 
     setDataSource(text: string) {
         this.dataSource = text
+    }
+
+    setLeftDataSource(text: string) {
+        this.leftDataSource = text
+    }
+
+    setRightDataSource(text: string) {
+        this.rightDataSource = text
     }
 
     getSelectionInfo(selector: string = "") {

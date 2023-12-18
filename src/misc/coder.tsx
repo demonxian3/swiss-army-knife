@@ -191,11 +191,11 @@ const noImplemented = () => {
     throw new Error("功能尚未开发")
 }
 
-const json2QueryString = (text: string) => {
+const json2Param = (text: string) => {
     return qs.stringify(JSON.parse(jsonCompress(text)))
 }
 
-const queryString2Json = (text: string) => {
+const param2Json = (text: string) => {
     return jsonFormat(JSON.stringify(qs.parse(text.replace(/\s/g, ""))))
 }
 
@@ -270,6 +270,6 @@ export default [
     { type: "coder", label: "参数并行", handler: paramJoin },
     { type: "coder", label: "去除空格", handler: removeByReg(/ /g) },
     { type: "coder", label: "去除空白", handler: removeByReg(/\s/g) },
-    { type: "convert", label: "param转json", handler: queryString2Json },
-    { type: "convert", label: "Json转param", handler: json2QueryString },
+    { type: "coder", label: "param转json", handler: param2Json },
+    { type: "coder", label: "Json转param", handler: json2Param },
 ]

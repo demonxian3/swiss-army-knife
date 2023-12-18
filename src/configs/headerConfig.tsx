@@ -8,17 +8,12 @@
 export default  [
     {
         key: "home",
-        label: "文本",
+        label: "Code",
         // icon: <DribbbleOutlined />,
     },
     {
         key: "json",
         label: "Json",
-        // icon: <DribbbleOutlined />,
-    },
-    {
-        key: "code",
-        label: "Code",
         // icon: <DribbbleOutlined />,
     },
     {

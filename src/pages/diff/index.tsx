@@ -1,63 +1,61 @@
-import { useEffect, useMemo, useRef } from "react"
+import { useState, useRef } from "react"
 import { observer } from "mobx-react-lite"
+import { DiffEditor, Monaco } from "@monaco-editor/react"
 import { useStore } from "@/stores"
-import { useWindowSize } from "react-use"
+import { useLocalStorage } from "react-use"
+import EditorSetter from "@/components/EditorSetter"
+import { addSelectListener } from "@/misc/common"
 import "./index.less"
-import { diffWords } from "diff"
-import { debounce, isNil } from "lodash"
+import { debounce } from "lodash"
+import { message } from "antd"
 
-const DiffEditor = () => {
+function App() {
+    const diffEditorRef = useRef<typeof DiffEditor | null>(null)
     const { globalStore: gs } = useStore()
-    const { width: screenWidth } = useWindowSize()
-    const isLaptop = useMemo(() => screenWidth <= 1440, [screenWidth])
+    const [wordWrap, setWordWrap] = useLocalStorage<boolean>("editor-autoWrap", false)
+    const [language, setLanguage] = useLocalStorage<string>("editor-language", "json")
+    const [diffSync, setDiffSync] = useLocalStorage<number>("editor-sync", 0) // noSync:0 syncLeft:1 syncRight:2
 
-    const leftRef = useRef<HTMLDivElement | null>(null)
-    const rightRef = useRef<HTMLDivElement | null>(null)
+    function handleEditorDidMount(editor: any, monaco: Monaco) {
+        diffEditorRef.current = editor
+        const originalEditor = editor.getOriginalEditor()
+        const modifiedEditor = editor.getModifiedEditor()
 
-    useEffect(() => {
-        handleChange()
-    }, [])
+        addSelectListener(originalEditor, gs, monaco)
+        addSelectListener(modifiedEditor, gs, monaco)
 
-    const handleChange = debounce(() => {
-        if ([leftRef?.current?.textContent, rightRef?.current?.textContent].some(isNil)) {
-            return
+        console.log(originalEditor)
+    }
+
+    const updateToGlobal = (dir: string) => {
+        if (diffEditorRef.current) {
+            const editor = diffEditorRef.current as any
+            const originalEditor =
+                dir === "left" ? editor.getOriginalEditor() : editor.getModifiedEditor()
+            gs.setDataSource(originalEditor.getModel().getValue())
+            message.success(`已经${dir === 'left' ? '左侧' : '右侧'}内容同步至Code`)
         }
-        
-        var a = document.createDocumentFragment()
-        var b = document.createDocumentFragment()
+    }
 
-        const diffs = diffWords(leftRef.current.textContent, rightRef.current.textContent)
-
-        diffs.forEach((d) => {
-            if (d.removed) {
-                const node = document.createElement("del")
-                node.appendChild(document.createTextNode(d.value))
-                a.appendChild(node)
-            } else if (d.added) {
-                const node = document.createElement("ins")
-                node.appendChild(document.createTextNode(d.value))
-                b.appendChild(node)
-            } else {
-                a.appendChild(document.createTextNode(d.value))
-                b.appendChild(document.createTextNode(d.value))
-            }
-        })
-
-        leftRef.current.textContent = rightRef.current.textContent = ""
-        leftRef.current.appendChild(a)
-        rightRef.current.appendChild(b)
-    }, 800)
-
+    const setterProps = { wordWrap, setWordWrap, language, setLanguage, diffSync, setDiffSync }
     return (
-        <div
-            className={`diff-container ${isLaptop ? "text-size-14px" : "text-size-16px"}  ${
-                gs.isDarkMode ? "diff-theme-dark" : "diff-theme-light"
-            }`}
-        >
-            <div className="diff-left" ref={leftRef} contentEditable onInput={handleChange}></div>
-            <div className="diff-right" ref={rightRef} contentEditable onInput={handleChange}></div>
-        </div>
+        <>
+            <EditorSetter {...setterProps} onSync={updateToGlobal} />
+            <DiffEditor
+                height="84vh"
+                theme={gs.isDarkMode ? "vs-dark" : "vs"}
+                language={language}
+                original={gs.dataSource}
+                modified={gs.dataSource}
+                options={{
+                    wordWrap: wordWrap ? "on" : "off", // 设置自动换行
+                    wrappingIndent: "indent", // 设置缩进方式
+                    originalEditable: true,
+                }}
+                onMount={handleEditorDidMount}
+            />
+        </>
     )
 }
 
-export default observer(DiffEditor)
+export default observer(App)
