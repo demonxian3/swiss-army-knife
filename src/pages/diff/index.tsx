@@ -6,7 +6,6 @@ import { useLocalStorage } from "react-use"
 import EditorSetter from "@/components/EditorSetter"
 import { addSelectListener } from "@/misc/common"
 import "./index.less"
-import { debounce } from "lodash"
 import { message } from "antd"
 
 function App() {

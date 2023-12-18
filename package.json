@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "serve": "serve dist/",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
@@ -15,7 +16,6 @@
     "ahooks": "^3.7.7",
     "antd": "^5.4.7",
     "axios": "^1.4.0",
-    "codemirror": "^6.0.1",
     "crypto-js": "^4.2.0",
     "dayjs": "^1.11.10",
     "lodash": "^4.17.21",
