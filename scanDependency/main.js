@@ -11,8 +11,8 @@ function analyzeFile(filePath, dependencies) {
         plugins: ["jsx", "typescript"],
     })
 
-    const components = []
-    const propUsages = []
+    let currentComponentName = null
+    const infos = []
 
     traverse.default(ast, {
         ImportDeclaration(path) {
@@ -32,6 +32,9 @@ function analyzeFile(filePath, dependencies) {
 
             dependencies.push({ importPath, specifiers })
         },
+        JSXOpeningElement(path) {
+            currentComponentName = path.node.name.name
+        },
 
         JSXElement(path) {
             // 检查是否为 JSX 元素
@@ -39,7 +42,14 @@ function analyzeFile(filePath, dependencies) {
                 // 获取 JSX 组件的名称
                 const componentName = path.node.openingElement.name.name
                 if (componentName) {
-                    components.push(componentName)
+                    const deps = dependencies.find((dep) => dep.specifiers.includes(componentName))
+                    if (deps) {
+                        infos.push({
+                            componentName,
+                            path: deps.importPath,
+                            specifier: componentName,
+                        })
+                    }
                 }
             }
         },
@@ -55,73 +65,80 @@ function analyzeFile(filePath, dependencies) {
                     const expression = attributeValue.expression
 
                     // 如果属性值是标识符，并且该标识符是从导入的模块中引入的
-                    if (
-                        expression.type === "Identifier" &&
-                        dependencies.map(i => i.specifiers).flat().includes(expression.name)
-                    ) {
-                        propUsages.push({
-                            attributeName,
-                            dependencies: expression.name,
-                        })
+                    if (expression.type === "Identifier") {
+                        const deps = dependencies.find((dep) =>
+                            dep.specifiers.includes(expression.name),
+                        )
+                        if (deps) {
+                            infos.push({
+                                componentName: currentComponentName,
+                                path: deps.importPath,
+                                specifier: expression.name,
+                            })
+                        }
                     }
                 }
             }
         },
     })
 
-    console.log(111, propUsages)
-
-    const componentDeps = dependencies.filter((dep) =>
-        dep.specifiers.some((spc) => components.includes(spc)),
-    )
-
-    const usefulCompoents = components.filter((c) =>
-        componentDeps
-            .map((i) => i.specifiers)
-            .flat()
-            .includes(c),
-    )
-
-    const walkPaths = dependencies.map((i) => i.importPath).flat().filter
-
-    // console.log(componentDeps, usefulCompoents)
-
-    return dependencies
+    return infos
 }
 
 function analyzeProject(entryFilePath) {
     const dependencies = []
     const visited = new Set()
-    const rootPath = path.dirname(entryFilePath)
+    // const rootPath = path.dirname(entryFilePath)
+    const rootPath = "../src/"
 
-    function analyzeRecursive(filePath) {
-        if (visited.has(filePath)) {
+    const rootTree = {
+        componentName: "root",
+        path: entryFilePath,
+        specifier: "App",
+        children: [],
+    }
+
+    function analyzeRecursive(tree) {
+        if (visited.has(tree.path)) {
             return
         }
 
-        visited.add(filePath)
+        visited.add(tree.path)
 
-        const info = analyzeFile(filePath, [])
+        // 判断路径是否处于src/下
+        if (/^@\//.test(tree.path)) {
+            tree.path = tree.path.replace(/^@\//g, rootPath + "/")
+        }
 
-        // console.log(fileImports)
-        // dependencies.push({ filePath, fileImports })
+        const autoSuffix = [".tsx", ".jsx", ".ts", ".js"]
+        if (!autoSuffix.some((suffix) => tree.path.endsWith(suffix))) {
+            const existPath = autoSuffix.reduce((ret, suffix) => {
+                return ret || (fs.existsSync(tree.path + suffix) && tree.path + suffix)
+            }, null)
 
-        // fileImports.forEach((dependency) => {
-        //     const nextFilePath = resolveFilePath(filePath, dependency)
-        //     analyzeRecursive(nextFilePath)
-        // })
+            if (!existPath) {
+                return
+            }
+
+            tree.path = existPath
+        }
+
+        tree.children = analyzeFile(tree.path, [])
+        tree.children.forEach((child) => {
+            analyzeRecursive(child)
+        })
     }
 
-    analyzeRecursive(entryFilePath)
-
-    return dependencies
+    analyzeRecursive(rootTree)
+    console.log("ret", rootTree)
+    return rootPath
 }
 
 function resolveFilePath(currentFilePath, importPath) {
     return path.resolve(path.dirname(currentFilePath), importPath)
 }
 
-const entryFilePath = "../src/App.tsx"
+const entryFilePath = "../src/configs/routeConfig.tsx"
 const result = analyzeProject(entryFilePath)
 
 console.log(JSON.stringify(result, null, 2))
