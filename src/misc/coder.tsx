@@ -1,4 +1,5 @@
 import dayjs from "dayjs"
+import { flatMap, times } from "lodash"
 import qs from "qs"
 
 const codePair = [
@@ -217,6 +218,23 @@ const escape = (text: string) =>
         ),
     )
 
+const sortAsc = (text: string) =>
+    text
+        .split("\n")
+        .sort((a, b) => a.localeCompare(b))
+        .join("\n")
+
+const sortDesc = (text: string) =>
+    text
+        .split("\n")
+        .sort((a, b) => b.localeCompare(a))
+        .join("\n")
+
+const trimRepeat = (text: string) => Array.from(new Set(text.split("\n"))).join("\n")
+
+const duplicate = (text: string) =>
+    flatMap(text.split("\n"), (item) => times(2, () => item)).join("\n")
+
 const unescape = (text: string) =>
     Array.from(codeMap.keys()).reduce((str, c) => {
         return str.replace(
@@ -240,7 +258,12 @@ const quotedPrintableEncode = (text: string): string => {
 }
 
 const quotedPrintableDecode = (text: string): string =>
-    decodeURIComponent(text.replace(/=([0-9A-F]{2})/g, (_m, hex) => `%${hex}`).replace(/=\s/g, ""))
+    decodeURIComponent(
+        text
+            .replace(/%/g, "%25")
+            .replace(/=([0-9A-F]{2})/g, (_m, hex) => `%${hex}`)
+            .replace(/=\s/g, ""),
+    )
 
 // TODO SQL排版，代码排版
 export default [
@@ -272,4 +295,8 @@ export default [
     { type: "coder", label: "去除空白", handler: removeByReg(/\s/g) },
     { type: "coder", label: "param转json", handler: param2Json },
     { type: "coder", label: "Json转param", handler: json2Param },
+    { type: "coder", label: "排序正序", handler: sortAsc },
+    { type: "coder", label: "排序倒序", handler: sortDesc },
+    { type: "coder", label: "文本去重", handler: trimRepeat },
+    { type: "coder", label: "文本加重", handler: duplicate },
 ]

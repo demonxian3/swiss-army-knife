@@ -60,6 +60,7 @@ const ThemeContent = observer(() => {
 const App = () => {
     return (
         <StoreContext.Provider value={{ ...stores }}>
+            <div></div>
             <ThemeContent />
         </StoreContext.Provider>
     )
