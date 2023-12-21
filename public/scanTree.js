@@ -162,9 +162,10 @@ function analyzeProject(entryFilePath) {
 }
 
 // const entryFilePath = "../src/App.tsx"
-const entryFilePath = process.argv[2];
-process.chdir(path.dirname(entryFilePath));
+const entryFilePath = process.argv[2]
+process.chdir(path.dirname(entryFilePath))
 const result = analyzeProject(entryFilePath)
 
 // 输出文件
-fs.writeFileSync("output.json", JSON.stringify(result, null, 2))
+// fs.writeFileSync("output.json", JSON.stringify(result, null, 2))
+console.log(JSON.stringify(result, null, 2))
