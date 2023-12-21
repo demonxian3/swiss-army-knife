@@ -18,12 +18,17 @@ export default  [
     },
     {
         key: "diff",
-        label: "对比",
+        label: "Diff",
+        // icon: <DribbbleOutlined />,
+    },
+    {
+        key: "tree",
+        label: "Tree",
         // icon: <DribbbleOutlined />,
     },
     {
         key: "settings",
-        label: "设置",
+        label: "Setting",
         // icon: <SettingOutlined />,
         children: [
             {

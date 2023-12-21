@@ -5,6 +5,7 @@ import Home from "@/pages/home/index"
 import CodeEditor from "@/pages/code/index"
 import JsonEditor from "@/pages/json/index"
 import DiffEditor from "@/pages/diff/index"
+import TreeViewer from "@/pages/tree/index"
 import NotFound from "@/pages/error/notFound"
 
 const routes: RouteObject[] = [
@@ -27,6 +28,10 @@ const routes: RouteObject[] = [
             {
                 path: "/diff",
                 element: <DiffEditor />,
+            },
+            {
+                path: "/tree",
+                element: <TreeViewer />,
             },
         ],
     },

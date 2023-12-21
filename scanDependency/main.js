@@ -13,6 +13,7 @@ function analyzeFile(filePath, dependencies) {
 
     let currentComponentName = null
     const infos = []
+    const routesMap = {}
 
     traverse.default(ast, {
         ImportDeclaration(path) {
@@ -31,11 +32,20 @@ function analyzeFile(filePath, dependencies) {
                 .filter(Boolean)
 
             dependencies.push({ importPath, specifiers })
+
+            if (importPath.toLowerCase().includes("route")) {
+                infos.push({
+                    name: "Route",
+                    attributes: {
+                        path: importPath,
+                        specifier: specifiers[0],
+                    },
+                })
+            }
         },
         JSXOpeningElement(path) {
             currentComponentName = path.node.name.name
         },
-
         JSXElement(path) {
             // 检查是否为 JSX 元素
             if (t.isJSXElement(path.node)) {
@@ -45,15 +55,16 @@ function analyzeFile(filePath, dependencies) {
                     const deps = dependencies.find((dep) => dep.specifiers.includes(componentName))
                     if (deps) {
                         infos.push({
-                            componentName,
-                            path: deps.importPath,
-                            specifier: componentName,
+                            name: componentName,
+                            attributes: {
+                                path: deps.importPath,
+                                specifier: componentName,
+                            },
                         })
                     }
                 }
             }
         },
-
         JSXIdentifier(path) {
             // 检查 JSX 元素的属性中是否使用了导入的模块中的标识符
             const parentPath = path.findParent((path) => path.isJSXAttribute())
@@ -71,9 +82,11 @@ function analyzeFile(filePath, dependencies) {
                         )
                         if (deps) {
                             infos.push({
-                                componentName: currentComponentName,
-                                path: deps.importPath,
-                                specifier: expression.name,
+                                name: currentComponentName,
+                                attributes: {
+                                    path: deps.importPath,
+                                    specifier: expression.name,
+                                },
                             })
                         }
                     }
@@ -86,59 +99,68 @@ function analyzeFile(filePath, dependencies) {
 }
 
 function analyzeProject(entryFilePath) {
-    const dependencies = []
-    const visited = new Set()
+    const visited = new Map()
     // const rootPath = path.dirname(entryFilePath)
     const rootPath = "../src/"
 
     const rootTree = {
-        componentName: "root",
-        path: entryFilePath,
-        specifier: "App",
+        name: "Root",
+        attributes: {
+            path: entryFilePath,
+            specifier: "App",
+            rootPath: rootPath,
+        },
         children: [],
     }
 
     function analyzeRecursive(tree) {
-        if (visited.has(tree.path)) {
+        if (visited.has(tree.attributes.path)) {
+            tree.children = visited.get(tree.attributes.path)
             return
         }
 
-        visited.add(tree.path)
-
         // 判断路径是否处于src/下
-        if (/^@\//.test(tree.path)) {
-            tree.path = tree.path.replace(/^@\//g, rootPath + "/")
+        if (/^@\//.test(tree.attributes.path)) {
+            tree.attributes.path = tree.attributes.path.replace(/^@\//g, rootPath + "/")
+        }
+
+        // 如果是目录，自动补充index
+        if (
+            fs.existsSync(tree.attributes.path) &&
+            fs.statSync(tree.attributes.path).isDirectory()
+        ) {
+            tree.attributes.path += "/index"
         }
 
         const autoSuffix = [".tsx", ".jsx", ".ts", ".js"]
-        if (!autoSuffix.some((suffix) => tree.path.endsWith(suffix))) {
+        if (!autoSuffix.some((suffix) => tree.attributes.path.endsWith(suffix))) {
             const existPath = autoSuffix.reduce((ret, suffix) => {
-                return ret || (fs.existsSync(tree.path + suffix) && tree.path + suffix)
+                return (
+                    ret ||
+                    (fs.existsSync(tree.attributes.path + suffix) && tree.attributes.path + suffix)
+                )
             }, null)
 
             if (!existPath) {
                 return
             }
 
-            tree.path = existPath
+            tree.attributes.path = existPath
         }
 
-        tree.children = analyzeFile(tree.path, [])
+        tree.children = analyzeFile(tree.attributes.path, [])
+        visited.set(tree.attributes.path, tree.children)
         tree.children.forEach((child) => {
             analyzeRecursive(child)
         })
     }
 
     analyzeRecursive(rootTree)
-    console.log("ret", rootTree)
-    return rootPath
+    return rootTree
 }
 
-function resolveFilePath(currentFilePath, importPath) {
-    return path.resolve(path.dirname(currentFilePath), importPath)
-}
-
-const entryFilePath = "../src/configs/routeConfig.tsx"
+const entryFilePath = "../src/App.tsx"
 const result = analyzeProject(entryFilePath)
 
-console.log(JSON.stringify(result, null, 2))
+// 输出文件
+fs.writeFileSync("output.json", JSON.stringify(result, null, 2))
