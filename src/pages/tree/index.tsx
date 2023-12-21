@@ -4,8 +4,6 @@ import { observer } from "mobx-react-lite"
 import { useMemo } from "react"
 import Tree from "react-d3-tree"
 
-
-
 const TreeViewer = () => {
     const { globalStore: gs } = useStore()
 

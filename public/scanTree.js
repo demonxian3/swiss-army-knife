@@ -1,3 +1,5 @@
+// yarn babel  /Users/demon/Desktop/project/sak/public/scanTree.js  --out-file  /Users/demon/Desktop/project/sak/public/scanTree2.js --extensions ".js,.cjs" --plugins "@babel/plugin-transform-modules-commonjs"
+
 import fs from "fs"
 import path from "path"
 import * as parser from "@babel/parser"
@@ -159,7 +161,9 @@ function analyzeProject(entryFilePath) {
     return rootTree
 }
 
-const entryFilePath = "../src/App.tsx"
+// const entryFilePath = "../src/App.tsx"
+const entryFilePath = process.argv[2];
+process.chdir(path.dirname(entryFilePath));
 const result = analyzeProject(entryFilePath)
 
 // 输出文件
