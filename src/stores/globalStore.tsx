@@ -1,7 +1,7 @@
 import { makeAutoObservable } from "mobx"
 import enUS from "antd/locale/en_US"
 import zhCN from "antd/locale/zh_CN"
-import { SELECTOR_DATAAREA } from "@/configs/constant"
+import { SELECTOR_DATAAREA, defaultDataSource} from "@/configs/constant"
 
 class GlobalStore {
     localeKey = "cn"
@@ -16,21 +16,7 @@ class GlobalStore {
     monacoRef: any = null
     editorSelection: any = null
     dataSourceUpdater: Function = (fn: Function) => (text: string) => this.setDataSource(fn(text))
-    dataSource = `{
-        "url": "https://www.example.com:8080/path/to/page?name=John&age=25#section1",
-        "stringVar": "Hello, World!",
-        "numberVar": 42,
-        "booleanVar": true,
-        "nullVar": null,
-        "undefinedVar": null,
-        "arrayVar": [1, "two", false, null],
-        "objectVar": {
-          "key1": "value1",
-          "key2": 123,
-          "key3": true,
-          "key4": null
-        }
-      }`
+    dataSource = JSON.stringify(defaultDataSource)
     leftDataSource = ""
     rightDataSource = ""
     historyStack: { time: number; text: string; label: string }[] = []

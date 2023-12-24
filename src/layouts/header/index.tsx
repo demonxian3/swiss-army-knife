@@ -25,6 +25,7 @@ const HeaderComponent = () => {
         <Header className="header">
             <div className="logo">SAK</div>
             <Menu
+                className="font-mono"
                 theme="dark"
                 mode="horizontal"
                 selectedKeys={[location.pathname.slice(1)]}
