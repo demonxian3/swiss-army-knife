@@ -1,12 +1,14 @@
 import { useStore } from "@/stores"
-import { message } from "antd"
+import { Input, message } from "antd"
 import { observer } from "mobx-react-lite"
-import { useEffect, useMemo } from "react"
+import { Children, InputHTMLAttributes, useEffect, useMemo, useState } from "react"
 import Tree from "react-d3-tree"
 import "./index.less"
+import { debounce } from "lodash"
 
 const TreeViewer = () => {
     const { globalStore: gs } = useStore()
+    const [searchWords, setSearchWords] = useState("")
 
     useEffect(() => {}, [gs.dataSource, gs.isDarkMode])
 
@@ -19,10 +21,44 @@ const TreeViewer = () => {
         }
     }, [gs.dataSource])
 
+    // 后序深度优先遍历，为搜索命中的节点打上key，去除完全不包含的路径
+    const dfsSearch = (tree: any, search: string) => {
+        const dfs = (node: { name: string; path: string; children: any[]; isMatch?: boolean }) => {
+            const matchChildren: any[] = node?.children?.map(dfs).filter(Boolean)
+
+            if (node.name.toLowerCase().includes(search.toLowerCase())) {
+                node.isMatch = true
+                return node
+            }
+
+            if (matchChildren?.length > 0) {
+                return { ...node, children: matchChildren }
+            }
+
+            return null
+        }
+
+        return dfs(tree)
+    }
+
+    const displayData = useMemo(() => {
+        if (!searchWords) {
+            return data
+        }
+
+        console.log("matchTree", dfsSearch(data, searchWords))
+        return dfsSearch(data, searchWords) || { name: "Root", path: "NotFound" }
+        // return data
+    }, [searchWords, data])
+
     const handleCopyPath = (data: string) => {
         navigator.clipboard.writeText(data).then(() => {
             message.success("拷贝成功")
         })
+    }
+
+    const handleSearch = (e: any) => {
+        debounce(() => setSearchWords(e.target.value), 800)()
     }
 
     const renderNode = ({ nodeDatum, toggleNode }: any) => (
@@ -58,7 +94,6 @@ const TreeViewer = () => {
                     </tspan>
                 </text>
             </g>
-
             {/* <text strokeWidth="1" x="20" onClick={() => handleCopyPath(nodeDatum)}>
                 <tspan dy="-5" dx={5} fontSize="14">
                     {nodeDatum.name}
@@ -71,12 +106,15 @@ const TreeViewer = () => {
     )
 
     return (
-        <Tree
-            data={data}
-            // onNodeClick={handleCopyPath}
-            translate={{ x: 200, y: 250 }}
-            renderCustomNodeElement={renderNode as any}
-        />
+        <>
+            <Input placeholder="输入关键字" className="w-full" onChange={handleSearch} />
+            <Tree
+                data={displayData}
+                // onNodeClick={handleCopyPath}
+                translate={{ x: 200, y: 250 }}
+                renderCustomNodeElement={renderNode as any}
+            />
+        </>
     )
 }
 
