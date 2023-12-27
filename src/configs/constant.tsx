@@ -95,6 +95,7 @@ export const defaultDataSource = {
                                     path: "pages\\home\\index.tsx",
                                     specifier: "Home",
                                     type: "elem",
+                                    routes: ["/home", "/index"],
                                     children: [
                                         {
                                             name: "CodeArea",
@@ -162,6 +163,7 @@ export const defaultDataSource = {
                                     specifier: "JsonEditor",
                                     type: "elem",
                                     children: [],
+                                    routes: ["/json", "/jsonView"]
                                 },
                                 {
                                     name: "CodeEditor",

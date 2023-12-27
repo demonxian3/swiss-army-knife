@@ -1,7 +1,7 @@
 import { useStore } from "@/stores"
 import { Input, message } from "antd"
 import { observer } from "mobx-react-lite"
-import { Children, InputHTMLAttributes, useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import Tree from "react-d3-tree"
 import "./index.less"
 import { debounce } from "lodash"
@@ -27,8 +27,7 @@ const TreeViewer = () => {
             const matchChildren: any[] = node?.children?.map(dfs).filter(Boolean)
 
             if (node.name.toLowerCase().includes(search.toLowerCase())) {
-                node.isMatch = true
-                return node
+                return { ...node, isMatch: true }
             }
 
             if (matchChildren?.length > 0) {
@@ -61,13 +60,18 @@ const TreeViewer = () => {
         debounce(() => setSearchWords(e.target.value), 800)()
     }
 
+    const getFillColor = (node: any) => {
+        if (node.isMatch) return "#ff9632"
+        return node.children?.length ? "lightsteelblue" : "transparent"
+    }
+
     const renderNode = ({ nodeDatum, toggleNode }: any) => (
         <g>
             <circle
                 r={18}
                 width="20"
                 stroke="#1f77b4"
-                fill={nodeDatum.children?.length ? "lightsteelblue" : "transparent"}
+                fill={getFillColor(nodeDatum)}
                 strokeWidth={2}
                 onClick={toggleNode}
             />
@@ -90,9 +94,22 @@ const TreeViewer = () => {
                     onClick={() => handleCopyPath(nodeDatum.path)}
                 >
                     <tspan x="0" dy="1.2em">
-                        {nodeDatum.path}
+                        path: {nodeDatum.path}
                     </tspan>
                 </text>
+                {nodeDatum.routes?.map((route: any, index: number) => (
+                    <text
+                        key={route}
+                        className="rd3t-label__attributes"
+                        x="0"
+                        y="40"
+                        onClick={() => handleCopyPath(route)}
+                    >
+                        <tspan x="0" dy={`${2.4 + 1.2 * index}em`}>
+                            route: {route}
+                        </tspan>
+                    </text>
+                ))}
             </g>
             {/* <text strokeWidth="1" x="20" onClick={() => handleCopyPath(nodeDatum)}>
                 <tspan dy="-5" dx={5} fontSize="14">
