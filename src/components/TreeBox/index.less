@@ -1,0 +1,42 @@
+.toolbox {
+  height: 100%;
+  overflow: hidden;
+  transition: width 0.15s ease-in-out;
+  table {
+    border-collapse: separate;
+    border-spacing: 4px 6px;
+  }
+
+  .crypt-settings {
+    .ant-form-item {
+      margin-bottom: 6px;
+    }
+  }
+}
+
+.btn {
+  color: white;
+  width: 26px;
+  border-radius: 2px;
+  padding: 12px 2px;
+  font-size: 13px;
+
+  &.active {
+    background-color: transparent
+  }
+}
+
+.tool-button(@bgColor, @hoverColor: lighten(@bgColor, 10%)) {
+  .btn;
+  background-color: @bgColor;
+
+  &:hover:not(.active) {
+    background-color: @hoverColor;
+  }
+
+  &.active {
+    color: darken(@bgColor, 10%);
+    border-left: 4px solid @bgColor;
+  }
+}
+

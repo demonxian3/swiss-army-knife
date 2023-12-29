@@ -1,9 +1,9 @@
 import { Layout, Card } from "antd"
 import { observer } from "mobx-react-lite"
 import { Outlet, useLocation, useNavigate } from "react-router-dom"
-import { useEffect } from "react"
+import { useEffect, useMemo } from "react"
 import { Header } from "@/layouts/index"
-import { ToolBox, HistoryPanel } from "@/components"
+import { ToolBox, HistoryPanel, TreeBox } from "@/components"
 import { Space } from "antd"
 const { Content, Sider } = Layout
 
@@ -18,21 +18,28 @@ const ContentLoader = () => {
         }
     }, [])
 
+    const isTree = useMemo(() => {
+        return location.pathname === "/tree"
+    }, [location.pathname])
+
     return (
         <Layout className="h-full">
             <Header />
             <Layout>
                 <Sider width="auto" theme="light">
-                    <ToolBox />
+                    {!isTree && <ToolBox />}
+                    {isTree && <TreeBox /> } 
                 </Sider>
                 <Content className="h-full">
                     {/* <Space className="items-stretch h-full"> */}
                     <Outlet />
                     {/* </Space> */}
                 </Content>
-                <Sider theme="light" width="auto">
-                    <HistoryPanel />
-                </Sider>
+                {!isTree && (
+                    <Sider theme="light" width="auto">
+                        <HistoryPanel />
+                    </Sider>
+                )}
             </Layout>
         </Layout>
     )

@@ -1,7 +1,7 @@
 import { makeAutoObservable } from "mobx"
 import enUS from "antd/locale/en_US"
 import zhCN from "antd/locale/zh_CN"
-import { SELECTOR_DATAAREA, defaultDataSource} from "@/configs/constant"
+import { SELECTOR_DATAAREA, defaultDataSource } from "@/configs/constant"
 
 class GlobalStore {
     localeKey = "cn"
@@ -20,9 +20,18 @@ class GlobalStore {
     leftDataSource = ""
     rightDataSource = ""
     historyStack: { time: number; text: string; label: string }[] = []
+    treeSettings: Record<string, any> = {
+        showAnt: localStorage.getItem("tree-show-ant") === "true" || false,
+        showReact: localStorage.getItem("tree-show-react") === "true" || false,
+        antFilter: ["antd", "refe"],
+    }
 
     constructor() {
         makeAutoObservable(this)
+    }
+
+    setTreeSettings = (key: string, value: any) => {
+        this.treeSettings[key] = value
     }
 
     setDataSourceUpdater = (updater: any) => {
