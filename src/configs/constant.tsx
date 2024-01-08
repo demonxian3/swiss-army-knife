@@ -20,7 +20,7 @@ export const defaultDataSource = {
             type: "elem",
         },
         {
-            name: "RouterProvider",
+            name: "PaymentPlanTable",
             path: "react-router-dom",
             specifier: "RouterProvider",
             type: "elem",

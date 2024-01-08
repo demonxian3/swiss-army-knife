@@ -9,7 +9,7 @@ import { debounce, isObject } from "lodash"
 const TreeViewer = () => {
     const { globalStore: gs } = useStore()
     const [searchWords, setSearchWords] = useState("")
-    useEffect(() => {}, [gs.dataSource, gs.isDarkMode, gs.treeSettings.showReact])
+    useEffect(() => {}, [gs.dataSource, gs.isDarkMode, gs.treeSettings.showReact, gs.treeSettings.showDetail])
 
     const filterTree = (tree: Record<string, any>) => {
         if (!gs.treeSettings.showAnt && gs.treeSettings.antFilter.includes(tree?.path)) {
@@ -148,29 +148,33 @@ const TreeViewer = () => {
                 >
                     {nodeDatum.name}
                 </text>
-                <text
-                    className="rd3t-label__attributes"
-                    x="0"
-                    y="40"
-                    onClick={() => handleCopyPath(nodeDatum.path)}
-                >
-                    <tspan x="0" dy="1.2em">
-                        path: {nodeDatum.path}
-                    </tspan>
-                </text>
-                {nodeDatum.routes?.map((route: any, index: number) => (
-                    <text
-                        key={route}
-                        className="rd3t-label__attributes"
-                        x="0"
-                        y="40"
-                        onClick={() => handleCopyPath(route)}
-                    >
-                        <tspan x="0" dy={`${2.4 + 1.2 * index}em`}>
-                            route: {route}
-                        </tspan>
-                    </text>
-                ))}
+                {(gs.treeSettings.showDetail || !nodeDatum?.children?.length) && (
+                    <>
+                        <text
+                            className="rd3t-label__attributes"
+                            x="0"
+                            y="40"
+                            onClick={() => handleCopyPath(nodeDatum.path)}
+                        >
+                            <tspan x="0" dy="1.2em">
+                                path: {nodeDatum.path}
+                            </tspan>
+                        </text>
+                        {nodeDatum.routes?.map((route: any, index: number) => (
+                            <text
+                                key={route}
+                                className="rd3t-label__attributes"
+                                x="0"
+                                y="40"
+                                onClick={() => handleCopyPath(route)}
+                            >
+                                <tspan x="0" dy={`${2.4 + 1.2 * index}em`}>
+                                    route: {route}
+                                </tspan>
+                            </text>
+                        ))}
+                    </>
+                )}
             </g>
         </g>
     )

@@ -10,6 +10,7 @@ import "./index.less" // 样式文件可以自定义
 const TreeBox = () => {
     const [showAnt, setShowAnt] = useLocalStorage("tree-show-ant", false)
     const [showReact, setShowReact] = useLocalStorage("tree-show-react", false)
+    const [showDetail, setShowDetail] = useLocalStorage("tree-show-detail", false)
 
     const { globalStore: gs } = useStore()
     const { width: screenWidth } = useWindowSize()
@@ -44,6 +45,12 @@ const TreeBox = () => {
                             <Switch
                                 checked={showReact}
                                 onChange={updateShow("showReact", setShowReact)}
+                            />
+                        </Form.Item>
+                        <Form.Item label="显示详情" className="mb-8px">
+                            <Switch
+                                checked={showDetail}
+                                onChange={updateShow("showDetail", setShowDetail)}
                             />
                         </Form.Item>
                     </Form>
