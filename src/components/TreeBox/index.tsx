@@ -2,6 +2,7 @@ import { useState, useMemo, ReactElement, useCallback } from "react"
 import { Switch, Typography, Form } from "antd"
 import { observer } from "mobx-react-lite"
 import { useStore } from "@/stores"
+import { useI18n } from "@/i18n"
 import { MenuUnfoldOutlined, MenuFoldOutlined } from "@ant-design/icons"
 import { useLocalStorage, useWindowSize } from "react-use"
 import "./index.less" // 样式文件可以自定义
@@ -13,6 +14,7 @@ const TreeBox = () => {
     const [showDetail, setShowDetail] = useLocalStorage("tree-show-detail", false)
 
     const { globalStore: gs } = useStore()
+    const { t } = useI18n()
     const { width: screenWidth } = useWindowSize()
     const isLaptop = useMemo(() => screenWidth <= 1440, [screenWidth])
 
@@ -33,21 +35,21 @@ const TreeBox = () => {
                     </button>
                 </div>
                 <div className="w-full ">
-                    <Typography className="text-gray-500 font-bold">显示设置</Typography>
+                    <Typography className="text-gray-500 font-bold">{t("common.displaySettings")}</Typography>
                     <Form>
-                        <Form.Item label="显示Antd节点" className="mb-8px">
+                        <Form.Item label={t("tree.showAntNodes")} className="mb-8px">
                             <Switch
                                 checked={showAnt}
                                 onChange={updateShow("showAnt", setShowAnt)}
                             />
                         </Form.Item>
-                        <Form.Item label="React项目树" className="mb-8px">
+                        <Form.Item label={t("tree.reactProjectTree")} className="mb-8px">
                             <Switch
                                 checked={showReact}
                                 onChange={updateShow("showReact", setShowReact)}
                             />
                         </Form.Item>
-                        <Form.Item label="显示详情" className="mb-8px">
+                        <Form.Item label={t("tree.showDetail")} className="mb-8px">
                             <Switch
                                 checked={showDetail}
                                 onChange={updateShow("showDetail", setShowDetail)}

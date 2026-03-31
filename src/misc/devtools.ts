@@ -1,10 +1,12 @@
+import { getStoredLocale, t } from "@/i18n"
+
 const evalInInspectedWindow = <T>(expression: string): Promise<T> =>
     new Promise((resolve, reject) => {
         chrome.devtools.inspectedWindow.eval(
             expression,
             (result: T, exceptionInfo: { isException?: boolean; value?: string }) => {
                 if (exceptionInfo?.isException) {
-                    reject(new Error(exceptionInfo.value || "页面脚本执行失败"))
+                    reject(new Error(exceptionInfo.value || t(getStoredLocale(), "devtools.evalFailed")))
                     return
                 }
 

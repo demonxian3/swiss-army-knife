@@ -3,6 +3,7 @@ import { JSONEditor } from "vanilla-jsoneditor"
 import { useStore } from "@/stores"
 import { observer } from "mobx-react-lite"
 import { message } from "antd"
+import { useI18n } from "@/i18n"
 import { jsonFormat } from "@/misc/coder"
 import "./index.less"
 import { useUpdateEffect } from "ahooks"
@@ -12,6 +13,7 @@ const JsonEditor = () => {
     const [editor, setEditor] = useState<any | null>(null)
     const editorRef = useRef<HTMLDivElement | null>(null)
     const { globalStore: gs } = useStore()
+    const { t } = useI18n()
 
     const formatter = useCallback((data: Record<any, any>) => jsonFormat(JSON.stringify(data)), [])
 
@@ -19,7 +21,7 @@ const JsonEditor = () => {
         try {
             return { json: JSON.parse(gs.dataSource), text: undefined }
         } catch {
-            message.error("Json解析失败，无法加载，请检查json格式是否有误")
+            message.error(t("json.parseFailed"))
 
             return { json: undefined, text: undefined }
         }

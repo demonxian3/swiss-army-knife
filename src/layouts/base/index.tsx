@@ -22,12 +22,14 @@ const ContentLoader = () => {
         return location.pathname === "/tree"
     }, [location.pathname])
 
+    const isSettings = useMemo(() => location.pathname === "/settings", [location.pathname])
+
     return (
         <Layout className="h-full">
             <Header />
             <Layout>
                 <Sider width="auto" theme="light">
-                    {!isTree && <ToolBox />}
+                    {!isTree && !isSettings && <ToolBox />}
                     {isTree && <TreeBox /> } 
                 </Sider>
                 <Content className="h-full">
@@ -35,7 +37,7 @@ const ContentLoader = () => {
                     <Outlet />
                     {/* </Space> */}
                 </Content>
-                {!isTree && (
+                {!isTree && !isSettings && (
                     <Sider theme="light" width="auto">
                         <HistoryPanel />
                     </Sider>

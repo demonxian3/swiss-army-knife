@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react"
 import { List, Typography, Space, Tooltip, Segmented, Input, message } from "antd"
 import { observer } from "mobx-react-lite"
 import { useStore } from "@/stores"
+import { useI18n } from "@/i18n"
 import {
     MenuUnfoldOutlined,
     MenuFoldOutlined,
@@ -25,6 +26,7 @@ interface historyItem {
 
 const HistoryPanel = () => {
     const { globalStore: gs } = useStore()
+    const { t } = useI18n()
     const { width: screenWidth } = useWindowSize()
     const [mode, setMode] = useState("history")
     const [keywords, setKeywords] = useState("")
@@ -40,7 +42,7 @@ const HistoryPanel = () => {
     const handleCopy = (e: React.MouseEvent, text: string) => {
         e.stopPropagation()
         navigator.clipboard.writeText(text).then(() => {
-            message.success("拷贝成功")
+            message.success(t("common.copied"))
         })
     }
 
@@ -48,7 +50,7 @@ const HistoryPanel = () => {
         e.stopPropagation()
         if (!historyStorage?.some((i) => isEqual(i, item))) {
             setHistoryStorage(historyStorage?.concat(item))
-            message.success("收藏成功")
+            message.success(t("history.collectSuccess"))
         }
     }
 
@@ -106,14 +108,14 @@ const HistoryPanel = () => {
                 >
                     {gs.historyExpand ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
                 </button>
-                <Typography className="text-gray-500 font-bold">操作历史</Typography>
+                <Typography className="text-gray-500 font-bold">{t("common.operationHistory")}</Typography>
                 <Segmented
                     value={mode}
                     onChange={setMode as any}
                     size="small"
                     options={[
-                        { label: "历史", value: "history" },
-                        { label: "收藏", value: "collect" },
+                        { label: t("common.history"), value: "history" },
+                        { label: t("common.favorites"), value: "collect" },
                     ]}
                 />
             </Space>
@@ -121,7 +123,7 @@ const HistoryPanel = () => {
                 size="small"
                 onChange={(e) => setKeywords(e.target.value)}
                 value={keywords}
-                placeholder="输入关键字搜索"
+                placeholder={t("common.searchKeyword")}
             />
             <div className={` h-90/100 overflow-x-hidden overflow-y-scroll history-scroll`}>
                 <List
@@ -151,7 +153,7 @@ const HistoryPanel = () => {
                                         <Space>
                                             {isHistoryMode &&
                                                 !historyStorage?.some((i) => isEqual(i, item)) && (
-                                                    <Tooltip title="收藏">
+                                                    <Tooltip title={t("common.collect")}>
                                                         <PlusCircleOutlined
                                                             onClick={(e) => handleCollect(e, item)}
                                                             className="text-16px text-yellow-500 cursor-pointer"
@@ -159,13 +161,13 @@ const HistoryPanel = () => {
                                                     </Tooltip>
                                                 )}
 
-                                            <Tooltip title="拷贝">
+                                            <Tooltip title={t("common.copy")}>
                                                 <CopyrightOutlined
                                                     onClick={(e) => handleCopy(e, item.text)}
                                                     className="text-16px  text-blue-500 cursor-pointer"
                                                 />
                                             </Tooltip>
-                                            <Tooltip title="删除">
+                                            <Tooltip title={t("common.delete")}>
                                                 <CloseCircleOutlined
                                                     onClick={(e) => handleDelete(e, idx)}
                                                     className="text-16px text-rose-500 cursor-pointer"

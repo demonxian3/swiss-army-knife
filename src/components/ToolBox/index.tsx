@@ -4,6 +4,7 @@ import { tools } from "@/misc/index"
 import { chain, omit, last, get, set } from "lodash"
 import { observer } from "mobx-react-lite"
 import { useStore } from "@/stores"
+import { useI18n } from "@/i18n"
 import "./index.less" // 样式文件可以自定义
 import { MenuUnfoldOutlined, MenuFoldOutlined } from "@ant-design/icons"
 import { useWindowSize } from "react-use"
@@ -15,6 +16,7 @@ const Toolbox = () => {
     const [activeTool, setActiveTool] = useState("coder")
     const [settingDom, setSettingDom] = useState<ReactElement | null>(null)
     const { globalStore: gs } = useStore()
+    const { t, translateToolLabel } = useI18n()
     const location = useLocation()
     const { width: screenWidth } = useWindowSize()
     const isLaptop = useMemo(() => screenWidth <= 1440, [screenWidth])
@@ -52,7 +54,7 @@ const Toolbox = () => {
     // Json编辑器
     const handleJsonArea = (handler: Function, label: string) => {
         if (!gs.jsonSelection) {
-            throw new Error("当前Json编辑器没有选中要修改的值，无法操作")
+            throw new Error(t("toolbox.noJsonSelection"))
         }
 
         let obj = null
@@ -67,12 +69,12 @@ const Toolbox = () => {
             gs.setJsonSelection({ ...gs.jsonSelection, path: path })
         } else if (gs.jsonSelection.type === "value") {
             if (![isString, isNumber].some((f) => f(val))) {
-                throw new Error("目前只支持对数字和字符串类型进行操作")
+                throw new Error(t("toolbox.onlyStringNumber"))
             }
             const inp = isString(val) ? val : val.toString()
             obj = set(jsonData, path, handler(inp))
         } else {
-            throw new Error("未知的type类型: " + gs.jsonSelection.type)
+            throw new Error(`${t("toolbox.unknownType")}: ${gs.jsonSelection.type}`)
         }
 
         // 增加历史记录
@@ -86,9 +88,11 @@ const Toolbox = () => {
         (item: { label: string; handler: Function; helper?: Function; configurable: boolean }) =>
         () => {
             try {
+                const translatedItem = { ...item, label: translateToolLabel(item.label) }
+
                 // 显示配置界面
                 if (item?.configurable) {
-                    item.handler(setSettingDom, handleCoding, item, isLaptop)
+                    item.handler(setSettingDom, handleCoding, translatedItem, isLaptop)
                     return
                 } else {
                     setSettingDom(null)
@@ -96,13 +100,13 @@ const Toolbox = () => {
 
                 // 当历史为空，将初始数据作为历史记录首条
                 if (!gs.historyStack.length) {
-                    gs.addHistoryItem(gs.dataSource, "初始数据")
+                    gs.addHistoryItem(gs.dataSource, t("common.initialData"))
                 }
 
                 if (isDataArea || isDiffArea) {
-                    handleDataArea(item.handler, item.label)
+                    handleDataArea(item.handler, translatedItem.label)
                 } else if (isJsonArea) {
-                    handleJsonArea(item.handler, item.label)
+                    handleJsonArea(item.handler, translatedItem.label)
                 }
             } catch (e: any) {
                 console.error(e)
@@ -120,8 +124,8 @@ const Toolbox = () => {
                     >
                         {gs.toolBoxExpand ? <MenuFoldOutlined /> : <MenuUnfoldOutlined />}
                     </button>
-                    {buildToolBtn("coder", "编码解码")}
-                    {buildToolBtn("crypter", "加密解密")}
+                    {buildToolBtn("coder", t("toolbox.coder"))}
+                    {buildToolBtn("crypter", t("toolbox.crypter"))}
                     {/* {buildToolBtn("convert", "格式转换")} */}
                     {/* {buildToolBtn("other", "杂项功能")} */}
                     {/* {buildToolBtn("formatter", "格式排版")} */}
@@ -132,7 +136,7 @@ const Toolbox = () => {
                             <tr>
                                 <td>
                                     <Typography className="text-gray-500 font-bold">
-                                        工具箱
+                                        {t("common.toolbox")}
                                     </Typography>
                                 </td>
                             </tr>
@@ -153,7 +157,7 @@ const Toolbox = () => {
                                                     ghost
                                                     onClick={handleCoding(item)}
                                                 >
-                                                    {item.label}
+                                                    {translateToolLabel(item.label)}
                                                 </Button>
                                             </td>
                                         ))}

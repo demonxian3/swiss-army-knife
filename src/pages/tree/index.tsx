@@ -1,5 +1,6 @@
 import { useStore } from "@/stores"
 import { Input, message } from "antd"
+import { useI18n } from "@/i18n"
 import { observer } from "mobx-react-lite"
 import { useEffect, useMemo, useState } from "react"
 import Tree from "react-d3-tree"
@@ -8,6 +9,7 @@ import { debounce, isObject } from "lodash"
 
 const TreeViewer = () => {
     const { globalStore: gs } = useStore()
+    const { t } = useI18n()
     const [searchWords, setSearchWords] = useState("")
     useEffect(() => {}, [gs.dataSource, gs.isDarkMode, gs.treeSettings.showReact, gs.treeSettings.showDetail])
 
@@ -29,7 +31,7 @@ const TreeViewer = () => {
             return filterTree(JSON.parse(gs.dataSource)) || {}
         } catch (e) {
             console.log(e)
-            message.error("JSON格式有误，无法解析出树图")
+            message.error(t("tree.jsonParseFailed"))
             return {}
         }
     }, [gs.dataSource, gs.treeSettings.showAnt])
@@ -60,7 +62,7 @@ const TreeViewer = () => {
 
         return (
             dfsSearch(data, searchWords.split("|").filter(Boolean)) || {
-                name: "Root",
+                name: t("tree.root"),
                 path: "NotFound",
             }
         )
@@ -69,7 +71,7 @@ const TreeViewer = () => {
 
     const handleCopyPath = (data: string) => {
         navigator.clipboard.writeText(data).then(() => {
-            message.success("拷贝成功")
+            message.success(t("common.copied"))
         })
     }
 
@@ -181,7 +183,7 @@ const TreeViewer = () => {
 
     return (
         <>
-            <Input placeholder="输入关键字" className="w-full" onChange={handleSearch} />
+            <Input placeholder={t("common.searchInput")} className="w-full" onChange={handleSearch} />
             <Tree
                 data={displayData as any}
                 // onNodeClick={handleCopyPath}

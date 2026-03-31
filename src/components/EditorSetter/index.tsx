@@ -2,6 +2,7 @@ import { ReactNode } from "react"
 import { observer } from "mobx-react-lite"
 import { Select, Form, Switch, Button, Space } from "antd"
 import { isNil } from "lodash"
+import { useI18n } from "@/i18n"
 
 interface ISetterProps {
     language: string | undefined
@@ -30,6 +31,7 @@ const supportLanguages = [
 
 const EditorSetter: React.FC<ISetterProps> = (props) => {
     const { onSync, diffSync, language, setLanguage, wordWrap, setWordWrap, extraActions } = props
+    const { t } = useI18n()
 
     const handleLanguageChange = (lang: string) => {
         setLanguage(lang)
@@ -38,7 +40,7 @@ const EditorSetter: React.FC<ISetterProps> = (props) => {
     return (
         <div className="editor-toolbar">
             <Form layout="inline" size="small" className="editor-setter">
-                <Form.Item label="语言">
+                <Form.Item label={t("common.language")}>
                     <Select
                         value={language}
                         style={{ width: "120px" }}
@@ -50,13 +52,13 @@ const EditorSetter: React.FC<ISetterProps> = (props) => {
                         }))}
                     ></Select>
                 </Form.Item>
-                <Form.Item label="自动换行">
+                <Form.Item label={t("editor.wordWrap")}>
                     <Switch checked={wordWrap} onChange={setWordWrap} size="small" />
                 </Form.Item>
                 {!isNil(diffSync) && (
                     <Space>
-                        <Button type="primary" danger onClick={() => onSync?.("left")}>同步左侧</Button>
-                        <Button type="primary" onClick={() => onSync?.("right")}>同步右侧</Button>
+                        <Button type="primary" danger onClick={() => onSync?.("left")}>{t("editor.syncLeft")}</Button>
+                        <Button type="primary" onClick={() => onSync?.("right")}>{t("editor.syncRight")}</Button>
                     </Space>
                 )}
             </Form>

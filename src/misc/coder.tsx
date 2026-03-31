@@ -1,6 +1,7 @@
 import dayjs from "dayjs"
 import { flatMap, times } from "lodash"
 import qs from "qs"
+import { getStoredLocale, t } from "@/i18n"
 
 const codePair = [
     [0x08, 0x62],
@@ -89,7 +90,7 @@ const toTimestamp = (text: string): string => {
     const parsedDate = dayjs(text)
 
     if (!parsedDate.isValid()) {
-        throw new Error("非有效日期格式, 无法转换")
+        throw new Error(t(getStoredLocale(), "coder.invalidDate"))
     }
 
     return parsedDate.unix().toString()
@@ -99,7 +100,7 @@ const toDatetime = (text: string): string => {
     const timestamp = text.length === 10 ? parseInt(text + "000", 10) : parseInt(text, 10)
 
     if (isNaN(timestamp)) {
-        throw new Error("非有效时间戳格式，无法转换")
+        throw new Error(t(getStoredLocale(), "coder.invalidTimestamp"))
     }
 
     return dayjs(timestamp).format("YYYY-MM-DD HH:mm:ss")
@@ -189,7 +190,7 @@ const paramJoin = (text: string): string => {
 }
 
 const noImplemented = () => {
-    throw new Error("功能尚未开发")
+    throw new Error(t(getStoredLocale(), "coder.notImplemented"))
 }
 
 const json2Param = (text: string) => {

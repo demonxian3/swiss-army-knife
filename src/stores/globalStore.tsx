@@ -2,12 +2,14 @@ import { makeAutoObservable } from "mobx"
 import enUS from "antd/locale/en_US"
 import zhCN from "antd/locale/zh_CN"
 import { SELECTOR_DATAAREA, defaultDataSource } from "@/configs/constant"
+import { getLocaleStorageKey, getStoredLocale, LocaleKey, t } from "@/i18n"
 
 class GlobalStore {
-    localeKey = "cn"
+    localeKey: LocaleKey = "cn"
     localeLang = zhCN
     themeTag = "light"
     themeKey = "rds_theme"
+    localeStorageKey = getLocaleStorageKey()
     toolBoxExpand = false
     historyExpand = false
     historyActiveKey = -1
@@ -123,11 +125,11 @@ class GlobalStore {
         const { elem, start, end, hasSelection } = this.getSelectionInfo(selector)
 
         if (!(elem instanceof HTMLTextAreaElement)) {
-            throw new Error("当前没有选中的Textarea组件, 无法修改")
+            throw new Error(t(this.localeKey, "dataArea.noSelectedTextarea"))
         }
 
         if (!this.historyStack.length) {
-            this.addHistoryItem(this.getDomData(selector), "初始数据")
+            this.addHistoryItem(this.getDomData(selector), t(this.localeKey, "common.initialData"))
         }
 
         if (hasSelection) {
@@ -149,7 +151,7 @@ class GlobalStore {
         const elements = Array.from(document.querySelectorAll(selector)) as HTMLTextAreaElement[]
 
         if (elements.length !== 1) {
-            throw new Error("所选的textarea不唯一或为空")
+            throw new Error(t(this.localeKey, "dataArea.textareaNotUnique"))
             return ""
         }
 
@@ -181,13 +183,19 @@ class GlobalStore {
     }
 
     changeLocale(key: string) {
-        this.localeKey = key
+        this.localeKey = (key === "en" ? "en" : "cn") as LocaleKey
 
         if (this.localeKey === "cn") {
             this.localeLang = zhCN
         } else {
             this.localeLang = enUS
         }
+
+        localStorage.setItem(this.localeStorageKey, this.localeKey)
+    }
+
+    loadLocale() {
+        this.changeLocale(getStoredLocale())
     }
 
     loadTheme() {

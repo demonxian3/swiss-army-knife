@@ -4,12 +4,14 @@ import {
 } from "react-router-dom";
 import { lazy, Suspense } from 'react';
 import routes from "@/configs/routeConfig"
+import stores from "@/stores"
+import { t } from "@/i18n"
 
 function LazyElement(props: any) {
     const { importFunc } = props;
     const LazyComponent = lazy(importFunc);
     return (
-        <Suspense fallback={<div style={{ paddingTop: 200, textAlign: 'center' }}>Loading</div>}>
+        <Suspense fallback={<div style={{ paddingTop: 200, textAlign: 'center' }}>{t(stores.globalStore.localeKey, "common.loading")}</div>}>
             <LazyComponent />
         </Suspense>
     );

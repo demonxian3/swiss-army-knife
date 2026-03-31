@@ -1,25 +1,21 @@
 import { Layout, Menu } from "antd"
 import { observer } from "mobx-react-lite"
-import { useStore } from "@/stores/index"
 import { useNavigate, useLocation } from "react-router-dom"
 import headerConfig from "@/configs/headerConfig"
+import { useI18n } from "@/i18n"
 import "./index.less"
 
 const { Header } = Layout
 
 const HeaderComponent = () => {
-    const { globalStore } = useStore()
     const navigate = useNavigate()
     const location = useLocation()
+    const { t } = useI18n()
 
     const handleNavigate = (item: any) => {
-        if (["light", "dark"].includes(item.key)) {
-            globalStore.changeTheme(item.key)
-        } else {
-            navigate(`/${item.key}`)
-        }
+        navigate(`/${item.key}`)
     }
-
+    const items = headerConfig(t)
 
     return (
         <Header className="header">
@@ -29,7 +25,7 @@ const HeaderComponent = () => {
                 theme="dark"
                 mode="horizontal"
                 selectedKeys={[location.pathname.slice(1)]}
-                items={headerConfig}
+                items={items}
                 onClick={handleNavigate}
             />
             {/* <div className="float-right">ProjectName</div> */}

@@ -5,46 +5,27 @@
 //     SettingOutlined,
 // } from "@ant-design/icons"
 
-export default  [
+const getHeaderConfig = (t: (key: string) => string) => [
     {
         key: "home",
-        label: "Code",
-        // icon: <DribbbleOutlined />,
+        label: t("nav.home"),
     },
     {
         key: "json",
-        label: "Json",
-        // icon: <DribbbleOutlined />,
+        label: t("nav.json"),
     },
     {
         key: "diff",
-        label: "Diff",
-        // icon: <DribbbleOutlined />,
+        label: t("nav.diff"),
     },
     {
         key: "tree",
-        label: "Tree",
-        // icon: <DribbbleOutlined />,
+        label: t("nav.tree"),
     },
     {
         key: "settings",
-        label: "Setting",
-        // icon: <SettingOutlined />,
-        children: [
-            {
-                type: "group",
-                label: "主题",
-                children: [
-                    {
-                        label: "明亮主题",
-                        key: "light",
-                    },
-                    {
-                        label: "暗黑主题",
-                        key: "dark",
-                    },
-                ],
-            },
-        ],
+        label: t("nav.settings"),
     },
 ]
+
+export default getHeaderConfig

@@ -13,6 +13,7 @@ import {
     readPageVisibleText,
     replacePageSelection,
 } from "@/misc/devtools"
+import { useI18n } from "@/i18n"
 import "./index.less"
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
     const [wordWrap, setWordWrap] = useLocalStorage<boolean>("editor-autoWrap", false)
     const [language, setLanguage] = useLocalStorage<string>("editor-language", "json")
     const [diffSync, setDiffSync] = useLocalStorage<number>("editor-sync", 0) // noSync:0 syncLeft:1 syncRight:2
+    const { t } = useI18n()
 
     function handleEditorDidMount(editor: any, monaco: Monaco) {
         diffEditorRef.current = editor
@@ -39,47 +41,49 @@ function App() {
             const originalEditor =
                 dir === "left" ? editor.getOriginalEditor() : editor.getModifiedEditor()
             gs.setDataSource(originalEditor.getModel().getValue())
-            message.success(`已经${dir === 'left' ? '左侧' : '右侧'}内容同步至Code`)
+            message.success(
+                dir === "left" ? t("editor.syncToCodeSuccessLeft") : t("editor.syncToCodeSuccessRight"),
+            )
         }
     }
 
     const getReplaceWarning = (result: ReplaceSelectionResult) => {
         const warningMap: Record<string, string> = {
-            "text-control-empty-selection": "当前焦点在输入框里，但没有选中文本",
-            "selection-unavailable": "当前页面不支持读取选区",
-            "no-selection-range": "当前页面没有可替换的选区",
-            "collapsed-selection": "当前页面选区为空，请先选中文本",
-            "editable-without-insert-text": "当前可编辑区域不支持直接写入选中文本",
-            "invalid-range": "当前选区无效，建议重新选择一次",
+            "text-control-empty-selection": t("editor.replaceWarnings.textControlEmptySelection"),
+            "selection-unavailable": t("editor.replaceWarnings.selectionUnavailable"),
+            "no-selection-range": t("editor.replaceWarnings.noSelectionRange"),
+            "collapsed-selection": t("editor.replaceWarnings.collapsedSelection"),
+            "editable-without-insert-text": t("editor.replaceWarnings.editableWithoutInsertText"),
+            "invalid-range": t("editor.replaceWarnings.invalidRange"),
         }
 
-        return warningMap[result.reason || ""] || "当前页面没有可替换的选区"
+        return warningMap[result.reason || ""] || t("editor.replaceWarnings.fallback")
     }
 
     const handleReadSelection = async () => {
         try {
             gs.setDataSource(await readPageSelection())
-            message.success("已读取页面选中文本")
+            message.success(t("editor.readSelectionSuccess"))
         } catch (error: any) {
-            message.error(error.message || "读取页面选中文本失败")
+            message.error(error.message || t("editor.readSelectionFailed"))
         }
     }
 
     const handleReadVisibleText = async () => {
         try {
             gs.setDataSource(await readPageVisibleText())
-            message.success("已读取页面可见文本")
+            message.success(t("editor.readVisibleTextSuccess"))
         } catch (error: any) {
-            message.error(error.message || "读取页面可见文本失败")
+            message.error(error.message || t("editor.readVisibleTextFailed"))
         }
     }
 
     const handleReadPageHtml = async () => {
         try {
             gs.setDataSource(await readPageHtml())
-            message.success("已读取页面 HTML")
+            message.success(t("editor.readPageHtmlSuccess"))
         } catch (error: any) {
-            message.error(error.message || "读取页面 HTML 失败")
+            message.error(error.message || t("editor.readPageHtmlFailed"))
         }
     }
 
@@ -91,19 +95,19 @@ function App() {
                 return
             }
 
-            message.success("已将面板内容写回页面选区")
+            message.success(t("common.saveToPageSelectionSuccess"))
         } catch (error: any) {
-            message.error(error.message || "写回页面选区失败")
+            message.error(error.message || t("editor.replaceSelectionFailed"))
         }
     }
 
     const setterProps = { wordWrap, setWordWrap, language, setLanguage, diffSync, setDiffSync }
     const pageActionButtons = (
         <Space size={6} wrap className="editor-page-actions">
-            <Button size="small" onClick={handleReadSelection}>读取选中</Button>
-            <Button size="small" onClick={handleReadVisibleText}>页面文本</Button>
-            <Button size="small" onClick={handleReadPageHtml}>页面HTML</Button>
-            <Button size="small" type="primary" onClick={handleReplaceSelection}>替换选中</Button>
+            <Button size="small" onClick={handleReadSelection}>{t("editor.readSelection")}</Button>
+            <Button size="small" onClick={handleReadVisibleText}>{t("editor.pageText")}</Button>
+            <Button size="small" onClick={handleReadPageHtml}>{t("editor.pageHtml")}</Button>
+            <Button size="small" type="primary" onClick={handleReplaceSelection}>{t("editor.replaceSelection")}</Button>
         </Space>
     )
     return (

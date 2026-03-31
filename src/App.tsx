@@ -24,6 +24,7 @@ const ThemeContent = observer(() => {
     const { globalStore } = useStore()
 
     useEffect(() => {
+        globalStore.loadLocale()
         globalStore.loadTheme()
         loader.config({ monaco })
         self.MonacoEnvironment = {

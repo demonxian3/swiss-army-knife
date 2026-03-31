@@ -2,6 +2,7 @@ import { getFieldsValue } from "./utils"
 import { Select, Space, Button, Form, Segmented, Input, Divider, Tooltip, message } from "antd"
 import crypto from "crypto-js"
 import { QuestionCircleOutlined } from "@ant-design/icons"
+import { getStoredLocale, t, translateToolLabel } from "@/i18n"
 
 const md5 = (text: string): string => {
     return crypto.MD5(text).toString()
@@ -39,14 +40,15 @@ const fields = [
         label: "密钥",
         type: "input",
         defaultValue: "",
-        validator: (v: string) => (![16, 24, 32].includes(v?.length) ? "密钥长度不合法,必须为16,24,32位" : ""),
+        validator: (v: string) =>
+            ![16, 24, 32].includes(v?.length) ? t(getStoredLocale(), "crypter.invalidKeyLength") : "",
     },
     {
         name: "iv",
         label: "IV",
         type: "input",
         defaultValue: "",
-        tip: "仅CBC, CFB模式会使用",
+        tip: t(getStoredLocale(), "crypter.ivTip"),
     },
     {
         name: "charset",
@@ -57,12 +59,25 @@ const fields = [
     },
     {
         name: "encode",
-        label: "填充",
+        label: "输出",
         type: "segmented",
         options: ["Base64", "Hex"],
         defaultValue: "Base64",
     },
 ]
+
+const translateFieldLabel = (label: string) => {
+    const locale = getStoredLocale()
+    const keyMap: Record<string, string> = {
+        模式: "crypter.mode",
+        填充: "crypter.padding",
+        密钥: "crypter.key",
+        字集: "crypter.charset",
+        输出: "crypter.outputEncoding",
+    }
+
+    return label === "IV" ? "IV" : t(locale, keyMap[label] || label)
+}
 
 const encrypt = (label: string, helper: typeof crypto.AES, handleMessage: Function) => {
     try {
@@ -126,7 +141,9 @@ const showConfig = (
 
     setSettingDom(
         <>
-            <Divider orientation={"center"}>{item.label}</Divider>
+            <Divider orientation={"center"}>
+                {translateToolLabel(getStoredLocale(), item.label)}
+            </Divider>
             <Form
                 size={isLaptop ? "small" : "middle"}
                 className="px-2 crypt-settings"
@@ -137,7 +154,7 @@ const showConfig = (
                     <Form.Item
                         label={
                             <Space size={1}>
-                                {item.label}
+                                {translateFieldLabel(item.label)}
                                 {item.tip && (
                                     <Tooltip title={item.tip}>
                                         <QuestionCircleOutlined />
@@ -169,14 +186,14 @@ const showConfig = (
                             type="primary"
                             onClick={() => encrypt(item.label, item.helper, handleMessage)}
                         >
-                            加密
+                            {t(getStoredLocale(), "crypter.encrypt")}
                         </Button>
                         <Button
                             size={isLaptop ? "small" : "middle"}
                             type="primary"
                             onClick={() => decrypt(item.label, item.helper, handleMessage)}
                         >
-                            解密
+                            {t(getStoredLocale(), "crypter.decrypt")}
                         </Button>
                     </Space>
                 </center>

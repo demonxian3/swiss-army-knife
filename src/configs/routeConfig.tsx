@@ -6,6 +6,7 @@ import CodeEditor from "@/pages/code/index"
 import JsonEditor from "@/pages/json/index"
 import DiffEditor from "@/pages/diff/index"
 import TreeViewer from "@/pages/tree/index"
+import SettingsPage from "@/pages/settings/index"
 import NotFound from "@/pages/error/notFound"
 
 const routes: RouteObject[] = [
@@ -32,6 +33,10 @@ const routes: RouteObject[] = [
             {
                 path: "/tree",
                 element: <TreeViewer />,
+            },
+            {
+                path: "/settings",
+                element: <SettingsPage />,
             },
         ],
     },
