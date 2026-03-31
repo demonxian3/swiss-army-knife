@@ -1,4 +1,4 @@
-import { useState, useMemo, ReactElement, useCallback } from "react"
+import { useState, useMemo, ReactElement, useRef } from "react"
 import { Button, Typography, message } from "antd"
 import { tools } from "@/misc/index"
 import { chain, omit, last, get, set } from "lodash"
@@ -15,6 +15,7 @@ import { isString, isNumber } from "lodash"
 const Toolbox = () => {
     const [activeTool, setActiveTool] = useState("coder")
     const [settingDom, setSettingDom] = useState<ReactElement | null>(null)
+    const wrapperRef = useRef<HTMLDivElement | null>(null)
     const { globalStore: gs } = useStore()
     const { t, translateToolLabel } = useI18n()
     const location = useLocation()
@@ -39,6 +40,27 @@ const Toolbox = () => {
     const isDataArea = location.pathname === "/home"
     const isJsonArea = location.pathname === "/json"
     const isDiffArea = location.pathname === "/diff"
+
+    const handleResizeStart = (event: React.MouseEvent<HTMLDivElement>) => {
+        if (!gs.toolBoxExpand || !wrapperRef.current) {
+            return
+        }
+
+        event.preventDefault()
+        const panelLeft = wrapperRef.current.getBoundingClientRect().left
+
+        const handleMouseMove = (moveEvent: MouseEvent) => {
+            gs.setToolboxWidth(moveEvent.clientX - panelLeft, isLaptop)
+        }
+
+        const handleMouseUp = () => {
+            window.removeEventListener("mousemove", handleMouseMove)
+            window.removeEventListener("mouseup", handleMouseUp)
+        }
+
+        window.addEventListener("mousemove", handleMouseMove)
+        window.addEventListener("mouseup", handleMouseUp)
+    }
 
     // 编辑器界面
     const handleDataArea = (handler: Function, label: string) => {
@@ -116,11 +138,15 @@ const Toolbox = () => {
 
     return (
         <div className={`relative h-full`} style={{ transition: "width 0.3s ease-in-out" }}>
-            <div className={`toolbox shadow flex relative ${gs.getToolboxWidth(isLaptop)}`}>
-                <div className="w-28px h-full">
+            <div
+                ref={wrapperRef}
+                className="toolbox shadow flex relative"
+                style={gs.getToolboxWidthStyle(isLaptop)}
+            >
+                <div className="toolbox-rail h-full">
                     <button
                         onClick={() => gs.toggleToolExpand()}
-                        className={`w-26px text-blue-600 text-xl `}
+                        className="toolbox-toggle w-26px text-blue-600 text-xl"
                     >
                         {gs.toolBoxExpand ? <MenuFoldOutlined /> : <MenuUnfoldOutlined />}
                     </button>
@@ -168,6 +194,7 @@ const Toolbox = () => {
                     </table>
                     {settingDom}
                 </div>
+                {gs.toolBoxExpand && <div className="toolbox-resize-handle" onMouseDown={handleResizeStart} />}
             </div>
         </div>
     )

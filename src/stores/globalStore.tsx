@@ -10,7 +10,9 @@ class GlobalStore {
     themeTag = "light"
     themeKey = "rds_theme"
     localeStorageKey = getLocaleStorageKey()
+    toolboxWidthKey = "sak_toolbox_width"
     toolBoxExpand = false
+    toolboxWidth = 0
     historyExpand = false
     historyActiveKey = -1
     jsonSelection: { type: string; path: string[] } | null = null
@@ -30,6 +32,7 @@ class GlobalStore {
 
     constructor() {
         makeAutoObservable(this)
+        this.toolboxWidth = this.loadToolboxWidth()
     }
 
     setTreeSettings = (key: string, value: any) => {
@@ -158,12 +161,35 @@ class GlobalStore {
         return elements[0].value
     }
 
-    getToolboxWidth(isLaptop = false) {
-        if (isLaptop) {
-            return this.toolBoxExpand ? "expanded w-250px" : "collapsed w-26px"
+    loadToolboxWidth() {
+        const width = parseInt(localStorage.getItem(this.toolboxWidthKey) || "", 10)
+        return Number.isFinite(width) ? width : 0
+    }
+
+    getDefaultToolboxWidth(isLaptop = false) {
+        if (this.localeKey === "en") {
+            return isLaptop ? 320 : 360
         }
 
-        return this.toolBoxExpand ? "expanded w-280px" : "collapsed w-26px"
+        return isLaptop ? 250 : 280
+    }
+
+    getExpandedToolboxWidth(isLaptop = false) {
+        return this.toolboxWidth || this.getDefaultToolboxWidth(isLaptop)
+    }
+
+    setToolboxWidth(width: number, isLaptop = false) {
+        const minWidth = this.localeKey === "en" ? 300 : 240
+        const maxWidth = isLaptop ? 420 : 480
+        const nextWidth = Math.min(Math.max(width, minWidth), maxWidth)
+        this.toolboxWidth = nextWidth
+        localStorage.setItem(this.toolboxWidthKey, String(nextWidth))
+    }
+
+    getToolboxWidthStyle(isLaptop = false) {
+        return {
+            width: this.toolBoxExpand ? `${this.getExpandedToolboxWidth(isLaptop)}px` : "34px",
+        }
     }
 
     getHistoryWidth(isLaptop = false) {

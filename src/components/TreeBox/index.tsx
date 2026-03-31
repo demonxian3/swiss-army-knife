@@ -1,4 +1,4 @@
-import { useState, useMemo, ReactElement, useCallback } from "react"
+import { useMemo, useRef } from "react"
 import { Switch, Typography, Form } from "antd"
 import { observer } from "mobx-react-lite"
 import { useStore } from "@/stores"
@@ -12,6 +12,7 @@ const TreeBox = () => {
     const [showAnt, setShowAnt] = useLocalStorage("tree-show-ant", false)
     const [showReact, setShowReact] = useLocalStorage("tree-show-react", false)
     const [showDetail, setShowDetail] = useLocalStorage("tree-show-detail", false)
+    const wrapperRef = useRef<HTMLDivElement | null>(null)
 
     const { globalStore: gs } = useStore()
     const { t } = useI18n()
@@ -23,13 +24,38 @@ const TreeBox = () => {
         gs.setTreeSettings(key, checked)
     }
 
+    const handleResizeStart = (event: React.MouseEvent<HTMLDivElement>) => {
+        if (!gs.toolBoxExpand || !wrapperRef.current) {
+            return
+        }
+
+        event.preventDefault()
+        const panelLeft = wrapperRef.current.getBoundingClientRect().left
+
+        const handleMouseMove = (moveEvent: MouseEvent) => {
+            gs.setToolboxWidth(moveEvent.clientX - panelLeft, isLaptop)
+        }
+
+        const handleMouseUp = () => {
+            window.removeEventListener("mousemove", handleMouseMove)
+            window.removeEventListener("mouseup", handleMouseUp)
+        }
+
+        window.addEventListener("mousemove", handleMouseMove)
+        window.addEventListener("mouseup", handleMouseUp)
+    }
+
     return (
         <div className={`relative h-full`} style={{ transition: "width 0.3s ease-in-out" }}>
-            <div className={`toolbox shadow flex relative ${gs.getToolboxWidth(isLaptop)}`}>
-                <div className="w-28px h-full">
+            <div
+                ref={wrapperRef}
+                className="toolbox shadow flex relative"
+                style={gs.getToolboxWidthStyle(isLaptop)}
+            >
+                <div className="toolbox-rail h-full">
                     <button
                         onClick={() => gs.toggleToolExpand()}
-                        className={`w-26px text-green-600 text-xl `}
+                        className="toolbox-toggle w-26px text-green-600 text-xl"
                     >
                         {gs.toolBoxExpand ? <MenuFoldOutlined /> : <MenuUnfoldOutlined />}
                     </button>
@@ -57,6 +83,7 @@ const TreeBox = () => {
                         </Form.Item>
                     </Form>
                 </div>
+                {gs.toolBoxExpand && <div className="toolbox-resize-handle" onMouseDown={handleResizeStart} />}
             </div>
         </div>
     )

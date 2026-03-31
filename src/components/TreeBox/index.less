@@ -1,7 +1,44 @@
 .toolbox {
-  height: 100%;
+  height: calc(100vh - 36px);
   overflow: hidden;
   transition: width 0.15s ease-in-out;
+  min-width: 26px;
+
+  .toolbox-rail {
+    width: 34px;
+    flex: 0 0 34px;
+  }
+
+  .toolbox-toggle {
+    display: block;
+    margin: 0 auto 2px;
+  }
+
+  .toolbox-resize-handle {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 8px;
+    height: 100%;
+    cursor: col-resize;
+    z-index: 2;
+  }
+
+  .toolbox-resize-handle::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 2px;
+    width: 2px;
+    height: 100%;
+    background: rgba(24, 144, 255, 0.12);
+    transition: background-color 0.2s ease;
+  }
+
+  .toolbox-resize-handle:hover::after {
+    background: rgba(24, 144, 255, 0.35);
+  }
+
   table {
     border-collapse: separate;
     border-spacing: 4px 6px;
@@ -16,10 +53,19 @@
 
 .btn {
   color: white;
-  width: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  min-height: 76px;
   border-radius: 2px;
-  padding: 12px 2px;
-  font-size: 13px;
+  padding: 8px 4px;
+  font-size: 12px;
+  line-height: 1.1;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  white-space: nowrap;
+  letter-spacing: 0.5px;
 
   &.active {
     background-color: transparent
@@ -39,4 +85,3 @@
     border-left: 4px solid @bgColor;
   }
 }
-
