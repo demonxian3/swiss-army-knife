@@ -38,7 +38,7 @@ function App() {
     // }
 
     return (
-        <>
+        <div className="editor-page">
             <EditorSetter
                 wordWrap={wordWrap}
                 setWordWrap={setWordWrap}
@@ -60,7 +60,7 @@ function App() {
                 // beforeMount={handleEditorWillMount}
                 // onValidate={handleEditorValidation}
             />
-        </>
+        </div>
     )
 }
 

@@ -158,10 +158,10 @@ class GlobalStore {
 
     getToolboxWidth(isLaptop = false) {
         if (isLaptop) {
-            return this.toolBoxExpand ? "expanded w-220px" : "collapsed w-26px"
+            return this.toolBoxExpand ? "expanded w-250px" : "collapsed w-26px"
         }
 
-        return this.toolBoxExpand ? "expanded w-240px" : "collapsed w-26px"
+        return this.toolBoxExpand ? "expanded w-280px" : "collapsed w-26px"
     }
 
     getHistoryWidth(isLaptop = false) {

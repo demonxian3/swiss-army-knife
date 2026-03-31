@@ -126,7 +126,7 @@ const Toolbox = () => {
                     {/* {buildToolBtn("other", "杂项功能")} */}
                     {/* {buildToolBtn("formatter", "格式排版")} */}
                 </div>
-                <div className="w-full">
+                <div className="toolbox-content w-full">
                     <table className="w-full">
                         <thead>
                             <tr>

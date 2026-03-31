@@ -33,7 +33,7 @@ const EditorSetter: React.FC<ISetterProps> = (props) => {
     }
 
     return (
-        <Form layout="inline" size="small" className="my-2">
+        <Form layout="inline" size="small" className="editor-setter">
             <Form.Item label="语言">
                 <Select
                     value={language}

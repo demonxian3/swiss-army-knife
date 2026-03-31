@@ -38,7 +38,7 @@ function App() {
 
     const setterProps = { wordWrap, setWordWrap, language, setLanguage, diffSync, setDiffSync }
     return (
-        <>
+        <div className="diff-page">
             <EditorSetter {...setterProps} onSync={updateToGlobal} />
             <DiffEditor
                 height="84vh"
@@ -53,7 +53,7 @@ function App() {
                 }}
                 onMount={handleEditorDidMount}
             />
-        </>
+        </div>
     )
 }
 
