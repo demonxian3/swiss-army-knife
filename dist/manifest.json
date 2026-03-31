@@ -3,13 +3,5 @@
   "name": "Swiss Army Knife",
   "description": "A DevTools panel for JSON, code, diff, and tree utilities.",
   "version": "0.0.1",
-  "devtools_page": "devtools.html",
-  "permissions": ["tabs"],
-  "content_scripts": [
-    {
-      "matches": ["<all_urls>"],
-      "js": ["content-script.js"],
-      "run_at": "document_idle"
-    }
-  ]
+  "devtools_page": "devtools.html"
 }
