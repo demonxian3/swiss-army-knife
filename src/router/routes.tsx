@@ -1,5 +1,5 @@
 import {
-    createBrowserRouter,
+    createHashRouter,
     RouteObject,
 } from "react-router-dom";
 import { lazy, Suspense } from 'react';
@@ -32,5 +32,5 @@ function dealRoutes(routesArr: RouteObject[]) {
 
 dealRoutes(routes);
 export { routes }
-const router = createBrowserRouter(routes, {basename: '/'})
+const router = createHashRouter(routes)
 export default router

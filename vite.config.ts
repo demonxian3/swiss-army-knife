@@ -5,6 +5,7 @@ import { resolve } from "path"
 import WindiCSS from "vite-plugin-windicss"
 // https://vitejs.dev/config/
 export default defineConfig({
+    base: "./",
     plugins: [
         react(),
         WindiCSS(),
@@ -24,6 +25,15 @@ export default defineConfig({
     resolve: {
         alias: {
             "@": resolve(__dirname, "src"),
+        },
+    },
+    build: {
+        rollupOptions: {
+            input: {
+                app: resolve(__dirname, "index.html"),
+                panel: resolve(__dirname, "panel.html"),
+                devtools: resolve(__dirname, "devtools.html"),
+            },
         },
     },
     server: {
