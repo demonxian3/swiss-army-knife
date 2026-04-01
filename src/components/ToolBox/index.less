@@ -1,8 +1,21 @@
 .toolbox {
+  --sak-panel-accent: #3f78ff;
+  --sak-panel-accent-soft: rgba(63, 120, 255, 0.16);
+  --sak-panel-border: rgba(95, 120, 168, 0.24);
+  --sak-rail-text: #46628f;
+  --sak-section-title: #5f6f85;
+  --sak-tool-button-bg: #ffffff;
+  --sak-tool-button-border: #9fb8ff;
+  --sak-tool-button-text: #335ccf;
+  --sak-tool-button-hover-bg: #eef4ff;
+  --sak-tool-button-hover-border: #6f93ff;
+  --sak-tool-button-shadow: none;
   height: calc(100vh - 36px);
   overflow: hidden;
   transition: width 0.15s ease-in-out;
   min-width: 26px;
+  background: linear-gradient(180deg, #fbfdff 0%, #f1f6ff 100%);
+  border-right: 1px solid var(--sak-panel-border);
 
   .toolbox-content {
     height: 100%;
@@ -18,17 +31,32 @@
       line-height: 1.25;
       padding-top: 6px;
       padding-bottom: 6px;
+      border-radius: 10px;
+      background: var(--sak-tool-button-bg);
+      border-color: var(--sak-tool-button-border);
+      color: var(--sak-tool-button-text);
+      box-shadow: var(--sak-tool-button-shadow);
+      transition: all 0.18s ease;
+    }
+
+    .ant-btn:hover,
+    .ant-btn:focus {
+      background: var(--sak-tool-button-hover-bg) !important;
+      border-color: var(--sak-tool-button-hover-border) !important;
+      color: var(--sak-tool-button-text) !important;
     }
   }
 
   .toolbox-rail {
     width: 34px;
     flex: 0 0 34px;
+    background: linear-gradient(180deg, rgba(234, 241, 255, 0.95) 0%, rgba(220, 233, 255, 0.92) 100%);
+    border-right: 1px solid var(--sak-panel-border);
   }
 
   .toolbox-toggle {
     display: block;
-    margin: 0 auto 2px;
+    margin: 6px auto 4px;
   }
 
   .toolbox-resize-handle {
@@ -61,6 +89,10 @@
     border-spacing: 4px 6px;
   }
 
+  .ant-typography {
+    color: var(--sak-section-title);
+  }
+
   .crypt-settings {
     .ant-form-item {
       margin-bottom: 6px;
@@ -72,14 +104,33 @@
   }
 }
 
+.panel-toggle-button {
+  width: 26px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--sak-panel-border);
+  border-radius: 8px;
+  background: var(--sak-panel-accent-soft);
+  color: var(--sak-panel-accent);
+  font-size: 14px;
+  transition: all 0.18s ease;
+}
+
+.panel-toggle-button:hover {
+  background: rgba(63, 120, 255, 0.22);
+  border-color: rgba(63, 120, 255, 0.42);
+}
+
 .btn {
-  color: white;
+  color: var(--sak-rail-text);
   display: flex;
   align-items: center;
   justify-content: center;
   width: 34px;
   min-height: 76px;
-  border-radius: 2px;
+  border-radius: 10px 0 0 10px;
   padding: 8px 4px;
   font-size: 12px;
   line-height: 1.1;
@@ -87,38 +138,68 @@
   text-orientation: mixed;
   white-space: nowrap;
   letter-spacing: 0.5px;
+  border: none;
+  transition: all 0.18s ease;
 
   &.active {
     background-color: transparent
   }
 }
 
-.tool-button(@bgColor, @hoverColor: lighten(@bgColor, 10%)) {
+.tool-button() {
   .btn;
-  background-color: @bgColor;
+  background: transparent;
 
   &:hover:not(.active) {
-    background-color: @hoverColor;
+    color: var(--sak-panel-accent);
+    background: rgba(63, 120, 255, 0.12);
   }
 
   &.active {
-    color: darken(@bgColor, 10%);
-    border-left: 4px solid @bgColor;
+    color: var(--sak-panel-accent);
+    background: rgba(63, 120, 255, 0.18);
+    box-shadow: inset 3px 0 0 var(--sak-panel-accent);
   }
 }
 
 .coder-button {
-  .tool-button(#08979c);
+  .tool-button();
 }
 
 .crypter-button {
-  .tool-button(#8667b8, #9254de);
+  .tool-button();
 }
 
 .formatter-button {
-  .tool-button(#c41d7f, #eb2f96);
+  .tool-button();
 }
 
 .convert-button {
-  .tool-button(#d46b08, #ffc069);
+  .tool-button();
+}
+
+.toolbox-dark {
+  --sak-panel-accent: #7cb8ff;
+  --sak-panel-accent-soft: rgba(124, 184, 255, 0.16);
+  --sak-panel-border: rgba(129, 157, 201, 0.18);
+  --sak-rail-text: #b8cae6;
+  --sak-section-title: #c8d3e6;
+  --sak-tool-button-bg: linear-gradient(180deg, #152132 0%, #121c2b 100%);
+  --sak-tool-button-border: #31445f;
+  --sak-tool-button-text: #dce7f8;
+  --sak-tool-button-hover-bg: #1b2b42;
+  --sak-tool-button-hover-border: #4a6790;
+  --sak-tool-button-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02), 0 6px 18px rgba(4, 10, 20, 0.22);
+  background: linear-gradient(180deg, #0f1826 0%, #111b2a 100%);
+  border-right-color: rgba(129, 157, 201, 0.16);
+  box-shadow: 8px 0 24px rgba(5, 9, 18, 0.18);
+
+  .toolbox-rail {
+    background: linear-gradient(180deg, #111c2b 0%, #0e1724 100%);
+    border-right-color: rgba(129, 157, 201, 0.14);
+  }
+
+  .toolbox-content::-webkit-scrollbar-thumb {
+    background: rgba(143, 171, 219, 0.34);
+  }
 }

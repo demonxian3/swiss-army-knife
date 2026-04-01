@@ -36,6 +36,9 @@ function App() {
 
         // 添加事件监听器
         addSelectListener(editor, gs, monaco)
+        editor.onDidBlurEditorText(() => {
+            gs.commitHistorySnapshot(editor.getValue(), t("common.manualEdit"))
+        })
     }
 
     const getReplaceWarning = (result: ReplaceSelectionResult) => {
@@ -53,7 +56,9 @@ function App() {
 
     const handleReadSelection = async () => {
         try {
-            gs.setDataSource(await readPageSelection())
+            const text = await readPageSelection()
+            gs.setDataSource(text)
+            gs.commitHistorySnapshot(text, t("editor.readSelection"))
             message.success(t("editor.readSelectionSuccess"))
         } catch (error: any) {
             message.error(error.message || t("editor.readSelectionFailed"))
@@ -62,7 +67,9 @@ function App() {
 
     const handleReadVisibleText = async () => {
         try {
-            gs.setDataSource(await readPageVisibleText())
+            const text = await readPageVisibleText()
+            gs.setDataSource(text)
+            gs.commitHistorySnapshot(text, t("editor.pageText"))
             message.success(t("editor.readVisibleTextSuccess"))
         } catch (error: any) {
             message.error(error.message || t("editor.readVisibleTextFailed"))
@@ -71,7 +78,9 @@ function App() {
 
     const handleReadPageHtml = async () => {
         try {
-            gs.setDataSource(await readPageHtml())
+            const text = await readPageHtml()
+            gs.setDataSource(text)
+            gs.commitHistorySnapshot(text, t("editor.pageHtml"))
             message.success(t("editor.readPageHtmlSuccess"))
         } catch (error: any) {
             message.error(error.message || t("editor.readPageHtmlFailed"))
@@ -111,7 +120,7 @@ function App() {
     // }
 
     return (
-        <div className="editor-page">
+        <div className={`editor-page ${gs.isDarkMode ? "editor-page-dark" : "editor-page-light"}`}>
             <EditorSetter
                 wordWrap={wordWrap}
                 setWordWrap={setWordWrap}

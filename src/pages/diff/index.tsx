@@ -40,7 +40,9 @@ function App() {
             const editor = diffEditorRef.current as any
             const originalEditor =
                 dir === "left" ? editor.getOriginalEditor() : editor.getModifiedEditor()
-            gs.setDataSource(originalEditor.getModel().getValue())
+            const text = originalEditor.getModel().getValue()
+            gs.setDataSource(text)
+            gs.commitHistorySnapshot(text, dir === "left" ? t("editor.syncLeft") : t("editor.syncRight"))
             message.success(
                 dir === "left" ? t("editor.syncToCodeSuccessLeft") : t("editor.syncToCodeSuccessRight"),
             )
@@ -62,7 +64,9 @@ function App() {
 
     const handleReadSelection = async () => {
         try {
-            gs.setDataSource(await readPageSelection())
+            const text = await readPageSelection()
+            gs.setDataSource(text)
+            gs.commitHistorySnapshot(text, t("editor.readSelection"))
             message.success(t("editor.readSelectionSuccess"))
         } catch (error: any) {
             message.error(error.message || t("editor.readSelectionFailed"))
@@ -71,7 +75,9 @@ function App() {
 
     const handleReadVisibleText = async () => {
         try {
-            gs.setDataSource(await readPageVisibleText())
+            const text = await readPageVisibleText()
+            gs.setDataSource(text)
+            gs.commitHistorySnapshot(text, t("editor.pageText"))
             message.success(t("editor.readVisibleTextSuccess"))
         } catch (error: any) {
             message.error(error.message || t("editor.readVisibleTextFailed"))
@@ -80,7 +86,9 @@ function App() {
 
     const handleReadPageHtml = async () => {
         try {
-            gs.setDataSource(await readPageHtml())
+            const text = await readPageHtml()
+            gs.setDataSource(text)
+            gs.commitHistorySnapshot(text, t("editor.pageHtml"))
             message.success(t("editor.readPageHtmlSuccess"))
         } catch (error: any) {
             message.error(error.message || t("editor.readPageHtmlFailed"))
@@ -111,7 +119,7 @@ function App() {
         </Space>
     )
     return (
-        <div className="diff-page">
+        <div className={`diff-page ${gs.isDarkMode ? "editor-page-dark" : "editor-page-light"}`}>
             <EditorSetter {...setterProps} onSync={updateToGlobal} extraActions={pageActionButtons} />
             <DiffEditor
                 height="84vh"

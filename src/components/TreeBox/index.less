@@ -1,17 +1,25 @@
 .toolbox {
+  --sak-panel-accent: #3f78ff;
+  --sak-panel-accent-soft: rgba(63, 120, 255, 0.16);
+  --sak-panel-border: rgba(95, 120, 168, 0.24);
+  --sak-section-title: #5f6f85;
   height: calc(100vh - 36px);
   overflow: hidden;
   transition: width 0.15s ease-in-out;
   min-width: 26px;
+  background: linear-gradient(180deg, #fbfdff 0%, #f1f6ff 100%);
+  border-right: 1px solid var(--sak-panel-border);
 
   .toolbox-rail {
     width: 34px;
     flex: 0 0 34px;
+    background: linear-gradient(180deg, rgba(234, 241, 255, 0.95) 0%, rgba(220, 233, 255, 0.92) 100%);
+    border-right: 1px solid var(--sak-panel-border);
   }
 
   .toolbox-toggle {
     display: block;
-    margin: 0 auto 2px;
+    margin: 6px auto 4px;
   }
 
   .toolbox-resize-handle {
@@ -49,39 +57,94 @@
       margin-bottom: 6px;
     }
   }
+
+  .ant-typography,
+  .ant-form-item-label > label {
+    color: var(--sak-section-title);
+  }
+
+  .tree-settings-panel {
+    margin: 12px 12px 12px 10px;
+    padding: 14px 14px 10px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.82);
+    border: 1px solid rgba(144, 170, 214, 0.26);
+    box-shadow: 0 10px 26px rgba(118, 145, 191, 0.10);
+  }
+
+  .tree-settings-title {
+    margin-bottom: 2px;
+    font-weight: 600;
+    color: var(--sak-section-title);
+  }
+
+  .tree-settings-subtitle {
+    display: block;
+    margin-bottom: 12px;
+    font-size: 12px;
+    color: rgba(95, 111, 133, 0.76);
+  }
+
+  .tree-settings-form {
+    .ant-form-item {
+      margin-bottom: 10px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(242, 247, 255, 0.86);
+      border: 1px solid rgba(144, 170, 214, 0.18);
+    }
+
+    .ant-form-item-label {
+      padding-bottom: 4px;
+    }
+  }
 }
 
-.btn {
-  color: white;
-  display: flex;
+.panel-toggle-button {
+  width: 26px;
+  height: 26px;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  min-height: 76px;
-  border-radius: 2px;
-  padding: 8px 4px;
-  font-size: 12px;
-  line-height: 1.1;
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
-  white-space: nowrap;
-  letter-spacing: 0.5px;
-
-  &.active {
-    background-color: transparent
-  }
+  border: 1px solid var(--sak-panel-border);
+  border-radius: 8px;
+  background: var(--sak-panel-accent-soft);
+  color: var(--sak-panel-accent);
+  font-size: 14px;
+  transition: all 0.18s ease;
 }
 
-.tool-button(@bgColor, @hoverColor: lighten(@bgColor, 10%)) {
-  .btn;
-  background-color: @bgColor;
+.panel-toggle-button:hover {
+  background: rgba(63, 120, 255, 0.22);
+  border-color: rgba(63, 120, 255, 0.42);
+}
 
-  &:hover:not(.active) {
-    background-color: @hoverColor;
+.toolbox-dark {
+  --sak-panel-accent: #7cb8ff;
+  --sak-panel-accent-soft: rgba(124, 184, 255, 0.16);
+  --sak-panel-border: rgba(129, 157, 201, 0.18);
+  --sak-section-title: #c8d3e6;
+  background: linear-gradient(180deg, #0f1826 0%, #111b2a 100%);
+  border-right-color: rgba(129, 157, 201, 0.16);
+  box-shadow: 8px 0 24px rgba(5, 9, 18, 0.18);
+
+  .toolbox-rail {
+    background: linear-gradient(180deg, #111c2b 0%, #0e1724 100%);
+    border-right-color: rgba(129, 157, 201, 0.14);
   }
 
-  &.active {
-    color: darken(@bgColor, 10%);
-    border-left: 4px solid @bgColor;
+  .tree-settings-panel {
+    background: rgba(19, 31, 47, 0.86);
+    border-color: rgba(129, 157, 201, 0.14);
+    box-shadow: 0 12px 28px rgba(4, 8, 16, 0.20);
+  }
+
+  .tree-settings-subtitle {
+    color: rgba(200, 211, 230, 0.68);
+  }
+
+  .tree-settings-form .ant-form-item {
+    background: rgba(14, 24, 36, 0.88);
+    border-color: rgba(129, 157, 201, 0.12);
   }
 }

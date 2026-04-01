@@ -13,14 +13,17 @@ const DataArea = () => {
     const isLaptop = useMemo(() => screenWidth <= 1440, [screenWidth])
 
     const handlePaste = (e: React.ClipboardEvent) => {
-        const data = e.clipboardData?.getData("Text")
-        gs.addHistoryItem(data, t("common.pastedText"))
+        const textarea = e.currentTarget
+        requestAnimationFrame(() => {
+            gs.commitHistorySnapshot(textarea.value, t("common.pastedText"))
+        })
     }
 
     return (
         <Input.TextArea
             onPaste={handlePaste}
             onChange={(e) => gs.setDataSource(e.target.value)}
+            onBlur={(e) => gs.commitHistorySnapshot(e.target.value, t("common.manualEdit"))}
             className={`${isLaptop ? "text-size-14px" : "text-size-16px"} data-area break-all w-full !h-full ${gs.isDarkMode ? "data-theme-dark" : "data-theme-light"}`}
             value={gs.dataSource}
         />

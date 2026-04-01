@@ -26,6 +26,7 @@ const enUS = {
         searchKeyword: "Search by keyword",
         searchInput: "Enter keyword",
         initialData: "Initial Data",
+        manualEdit: "Manual Edit",
         pastedText: "Pasted Text",
         settings: "Settings",
         saveToPageSelectionSuccess: "Panel content has been written back to the page selection",
@@ -59,11 +60,13 @@ const enUS = {
     },
     history: {
         collectSuccess: "Saved to favorites",
+        empty: "No history yet",
     },
     tree: {
         showAntNodes: "Show Antd Nodes",
         reactProjectTree: "React Project Tree",
         showDetail: "Show Details",
+        settingsHint: "Toggle display options to keep the canvas focused.",
         jsonParseFailed: "Invalid JSON. Unable to render the tree view",
         root: "Root",
     },

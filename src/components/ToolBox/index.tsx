@@ -6,7 +6,7 @@ import { observer } from "mobx-react-lite"
 import { useStore } from "@/stores"
 import { useI18n } from "@/i18n"
 import "./index.less" // 样式文件可以自定义
-import { MenuUnfoldOutlined, MenuFoldOutlined } from "@ant-design/icons"
+import { PicLeftOutlined, PicRightOutlined } from "@ant-design/icons"
 import { useWindowSize } from "react-use"
 import { useLocation } from "react-router-dom"
 import { isString, isNumber } from "lodash"
@@ -64,11 +64,12 @@ const Toolbox = () => {
 
     // 编辑器界面
     const handleDataArea = (handler: Function, label: string) => {
+        const previousText = gs.dataSource
         // 由编辑器API修改 dataSource
         gs.dataSourceUpdater(handler)
         if (isDataArea) {
             setTimeout(() => {
-                gs.addHistoryItem(gs.dataSource, label)
+                gs.commitHistorySnapshot(gs.dataSource, label, previousText)
             }, 1)
         }
     }
@@ -80,6 +81,7 @@ const Toolbox = () => {
         }
 
         let obj = null
+        const previousText = gs.dataSource
         const jsonData = JSON.parse(gs.dataSource)
         const val = get(jsonData, gs.jsonSelection.path)
         const path = gs.jsonSelection.path.slice()
@@ -102,7 +104,7 @@ const Toolbox = () => {
         // 增加历史记录
         const res = JSON.stringify(obj, null, 4)
         gs.setDataSource(res)
-        gs.addHistoryItem(res, label)
+        gs.commitHistorySnapshot(res, label, previousText)
     }
 
     // 二阶函数
@@ -120,11 +122,6 @@ const Toolbox = () => {
                     setSettingDom(null)
                 }
 
-                // 当历史为空，将初始数据作为历史记录首条
-                if (!gs.historyStack.length) {
-                    gs.addHistoryItem(gs.dataSource, t("common.initialData"))
-                }
-
                 if (isDataArea || isDiffArea) {
                     handleDataArea(item.handler, translatedItem.label)
                 } else if (isJsonArea) {
@@ -140,15 +137,15 @@ const Toolbox = () => {
         <div className={`relative h-full`} style={{ transition: "width 0.3s ease-in-out" }}>
             <div
                 ref={wrapperRef}
-                className="toolbox shadow flex relative"
+                className={`toolbox shadow flex relative ${gs.isDarkMode ? "toolbox-dark" : "toolbox-light"}`}
                 style={gs.getToolboxWidthStyle(isLaptop)}
             >
                 <div className="toolbox-rail h-full">
                     <button
                         onClick={() => gs.toggleToolExpand()}
-                        className="toolbox-toggle w-26px text-blue-600 text-xl"
+                        className="toolbox-toggle panel-toggle-button"
                     >
-                        {gs.toolBoxExpand ? <MenuFoldOutlined /> : <MenuUnfoldOutlined />}
+                        {gs.toolBoxExpand ? <PicLeftOutlined /> : <PicRightOutlined />}
                     </button>
                     {buildToolBtn("coder", t("toolbox.coder"))}
                     {buildToolBtn("crypter", t("toolbox.crypter"))}

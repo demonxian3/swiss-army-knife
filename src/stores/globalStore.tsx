@@ -47,6 +47,23 @@ class GlobalStore {
         this.jsonSelection = selection
     }
 
+    getTrimmedHistoryText(text: string) {
+        return text.replace(/\s+$/g, "")
+    }
+
+    getLatestHistoryText(stack: { time: number; text: string; label: string }[] = this.historyStack) {
+        return stack.length ? stack[stack.length - 1].text : ""
+    }
+
+    scrollHistoryToBottom() {
+        setTimeout(() => {
+            const elem = document.querySelector(".history-scroll") as HTMLDivElement
+            if (elem) {
+                elem.scrollTop = elem.scrollHeight
+            }
+        }, 1)
+    }
+
     addHistoryItem(text: string, label: string) {
         // 如果选中非最后一条历史记录，新增记录要覆盖和清除后面的记录
         let stack = this.historyStack
@@ -54,15 +71,36 @@ class GlobalStore {
             stack = this.historyStack.slice(0, this.historyActiveKey + 1)
         }
 
+        if (this.getTrimmedHistoryText(this.getLatestHistoryText(stack)) === this.getTrimmedHistoryText(text)) {
+            this.historyStack = stack
+            this.setHistoryActiveKey(stack.length - 1)
+            return
+        }
+
         // 通过返回新数组触发引用类型地址变动，使得观察者组件能够重新渲染
         this.historyStack = [...stack, { time: new Date().getTime(), text, label }]
         this.setHistoryActiveKey(this.historyStack.length - 1)
+        this.scrollHistoryToBottom()
+    }
 
-        // 每次更新时，另滚动条始终保持底部
-        setTimeout(() => {
-            const elem = document.querySelector(".history-scroll") as HTMLDivElement
-            elem.scrollTop = elem.scrollHeight
-        }, 1)
+    commitHistorySnapshot(text: string, label: string, baselineText?: string) {
+        const nextText = text ?? ""
+        const normalizedNextText = this.getTrimmedHistoryText(nextText)
+        const normalizedBaselineText = this.getTrimmedHistoryText(baselineText ?? "")
+
+        if (!normalizedNextText) {
+            return
+        }
+
+        if (
+            !this.historyStack.length &&
+            normalizedBaselineText &&
+            normalizedBaselineText !== normalizedNextText
+        ) {
+            this.addHistoryItem(baselineText ?? "", t(this.localeKey, "common.initialData"))
+        }
+
+        this.addHistoryItem(nextText, label)
     }
 
     delHistoryItem(idx: number) {
@@ -126,19 +164,16 @@ class GlobalStore {
 
     setDomData(selector: string, replaceText: string, label: string) {
         const { elem, start, end, hasSelection } = this.getSelectionInfo(selector)
+        const previousText = this.getDomData(selector)
 
         if (!(elem instanceof HTMLTextAreaElement)) {
             throw new Error(t(this.localeKey, "dataArea.noSelectedTextarea"))
         }
 
-        if (!this.historyStack.length) {
-            this.addHistoryItem(this.getDomData(selector), t(this.localeKey, "common.initialData"))
-        }
-
         if (hasSelection) {
             const newText = elem.value.slice(0, start) + replaceText + elem!.value.slice(end)
             elem.value = newText
-            this.addHistoryItem(newText, label)
+            this.commitHistorySnapshot(newText, label, previousText)
 
             setTimeout(() => {
                 elem!.focus()
@@ -146,7 +181,7 @@ class GlobalStore {
             }, 1)
         } else {
             elem.value = replaceText
-            this.addHistoryItem(replaceText, label)
+            this.commitHistorySnapshot(replaceText, label, previousText)
         }
     }
 

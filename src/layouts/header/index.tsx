@@ -3,6 +3,7 @@ import { observer } from "mobx-react-lite"
 import { useNavigate, useLocation } from "react-router-dom"
 import headerConfig from "@/configs/headerConfig"
 import { useI18n } from "@/i18n"
+import { useStore } from "@/stores"
 import "./index.less"
 
 const { Header } = Layout
@@ -11,6 +12,7 @@ const HeaderComponent = () => {
     const navigate = useNavigate()
     const location = useLocation()
     const { t } = useI18n()
+    const { globalStore } = useStore()
 
     const handleNavigate = (item: any) => {
         navigate(`/${item.key}`)
@@ -18,10 +20,10 @@ const HeaderComponent = () => {
     const items = headerConfig(t)
 
     return (
-        <Header className="header">
+        <Header className={`header ${globalStore.isDarkMode ? "header-dark" : "header-light"}`}>
             <div className="logo">SAK</div>
             <Menu
-                className="font-mono"
+                className="header-menu font-mono"
                 theme="dark"
                 mode="horizontal"
                 selectedKeys={[location.pathname.slice(1)]}

@@ -1,11 +1,11 @@
-import { useEffect, useMemo, useState } from "react"
-import { List, Typography, Space, Tooltip, Segmented, Input, message } from "antd"
+import { useEffect, useMemo, useRef, useState } from "react"
+import { List, Typography, Space, Tooltip, Segmented, Input, message, Flex } from "antd"
 import { observer } from "mobx-react-lite"
 import { useStore } from "@/stores"
 import { useI18n } from "@/i18n"
 import {
-    MenuUnfoldOutlined,
-    MenuFoldOutlined,
+    PicRightOutlined,
+    PicLeftOutlined,
     CopyrightOutlined,
     PlusCircleOutlined,
     CloseCircleOutlined,
@@ -28,6 +28,7 @@ const HistoryPanel = () => {
     const { globalStore: gs } = useStore()
     const { t } = useI18n()
     const { width: screenWidth } = useWindowSize()
+    const panelRef = useRef<HTMLDivElement | null>(null)
     const [mode, setMode] = useState("history")
     const [keywords, setKeywords] = useState("")
     const [historyStorage, setHistoryStorage] = useLocalStorage<historyItem[]>("historyStorage", [])
@@ -86,49 +87,69 @@ const HistoryPanel = () => {
     const getDataSource = useMemo(() => {
         const searchFn = keywords
             ? (item: historyItem) =>
-                  `${dayjs(item.time).format("YYYY-MM-DD HH:mm:ss")}${item.label}${
-                      item.text
-                  }`.includes(keywords)
+                `${dayjs(item.time).format("YYYY-MM-DD HH:mm:ss")}${item.label}${item.text
+                    }`.includes(keywords)
             : identity
 
         return isHistoryMode
             ? gs.historyStack.filter(searchFn)
             : orderBy(historyStorage?.filter(searchFn), ["time"], ["desc"])
-    }, [mode, keywords, gs.historyStack])
+    }, [isHistoryMode, keywords, gs.historyStack, historyStorage])
+
+    const getTooltipContainer = () => panelRef.current || document.body
+    const listWidthClass = isLaptop ? "w-280px" : "w-320px"
 
     // TODO 不加上此代码点击触发handleRollback样式不会更新！
-    useEffect(() => {}, [gs.historyActiveKey])
+    useEffect(() => { }, [gs.historyActiveKey])
 
     return (
-        <div className={`h-full history-panel  ${gs.getHistoryWidth(isLaptop)}`}>
-            <Space className={`!text-12px ${isLaptop ? "w-280px" : "w-320px"}`}>
+        <div
+            ref={panelRef}
+            className={`h-full history-panel ${gs.isDarkMode ? "history-panel-dark" : "history-panel-light"} ${gs.getHistoryWidth(isLaptop)}`}
+        >
+            {!gs.historyExpand && (
                 <button
                     onClick={() => gs.toggleHistoryExpand()}
-                    className={`w-26px text-red-600 text-xl `}
+                    className="panel-toggle-button history-panel-floating-toggle"
                 >
-                    {gs.historyExpand ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+                    <PicRightOutlined />
                 </button>
-                <Typography className="text-gray-500 font-bold">{t("common.operationHistory")}</Typography>
-                <Segmented
-                    value={mode}
-                    onChange={setMode as any}
+            )}
+
+            <div className={`history-panel-inner ${listWidthClass}`}>
+
+                <Flex className="!text-12px mb-2" justify="space-between" align="center">
+                    <button
+                        onClick={() => gs.toggleHistoryExpand()}
+                        className="panel-toggle-button history-panel-toggle"
+                    >
+                        {gs.historyExpand ? <PicLeftOutlined /> : <PicRightOutlined />}
+                    </button>
+                    <Typography className="ml-2 history-panel-title">{t("common.operationHistory")}</Typography>
+                    <Segmented
+                        className="history-panel-segmented"
+                        value={mode}
+                        onChange={setMode as any}
+                        size="small"
+                        options={[
+                            { label: t("common.history"), value: "history" },
+                            { label: t("common.favorites"), value: "collect" },
+                        ]}
+                    />
+                </Flex>
+                <Input
+                    className="history-panel-search"
                     size="small"
-                    options={[
-                        { label: t("common.history"), value: "history" },
-                        { label: t("common.favorites"), value: "collect" },
-                    ]}
+                    onChange={(e) => setKeywords(e.target.value)}
+                    value={keywords}
+                    placeholder={t("common.searchKeyword")}
                 />
-            </Space>
-            <Input
-                size="small"
-                onChange={(e) => setKeywords(e.target.value)}
-                value={keywords}
-                placeholder={t("common.searchKeyword")}
-            />
-            <div className={` h-90/100 overflow-x-hidden overflow-y-scroll history-scroll`}>
+            </div>
+            <div className={`history-scroll history-panel-list ${listWidthClass}`}>
                 <List
                     size="small"
-                    className={`!text-12px ${isLaptop ? "w-280px" : "w-320px"}`}
+                    className="!text-12px"
+                    locale={{ emptyText: <div className="history-empty-state">{t("history.empty")}</div> }}
                     itemLayout="horizontal"
                     dataSource={getDataSource}
                     renderItem={(item, idx) => (
@@ -139,9 +160,10 @@ const HistoryPanel = () => {
                         >
                             <List.Item.Meta
                                 title={
-                                    <div className={`flex justify-between w-full `}>
-                                        <Typography className="truncate w-10vw  text-blue-500">
+                                    <div className="history-item-title">
+                                        <Typography className="history-item-label truncate text-blue-500">
                                             <Tooltip
+                                                getPopupContainer={getTooltipContainer}
                                                 title={dayjs(item.time).format(
                                                     "YYYY-MM-DD HH:mm:ss",
                                                 )}
@@ -150,27 +172,39 @@ const HistoryPanel = () => {
                                             </Tooltip>{" "}
                                             {item.label}
                                         </Typography>
-                                        <Space>
+                                        <Space className="history-item-actions" size={6}>
                                             {isHistoryMode &&
                                                 !historyStorage?.some((i) => isEqual(i, item)) && (
-                                                    <Tooltip title={t("common.collect")}>
+                                                    <Tooltip
+                                                        title={t("common.collect")}
+                                                        placement="top"
+                                                        getPopupContainer={getTooltipContainer}
+                                                    >
                                                         <PlusCircleOutlined
                                                             onClick={(e) => handleCollect(e, item)}
-                                                            className="text-16px text-yellow-500 cursor-pointer"
+                                                            className="history-action-icon"
                                                         />
                                                     </Tooltip>
                                                 )}
 
-                                            <Tooltip title={t("common.copy")}>
+                                            <Tooltip
+                                                title={t("common.copy")}
+                                                placement="top"
+                                                getPopupContainer={getTooltipContainer}
+                                            >
                                                 <CopyrightOutlined
                                                     onClick={(e) => handleCopy(e, item.text)}
-                                                    className="text-16px  text-blue-500 cursor-pointer"
+                                                    className="history-action-icon"
                                                 />
                                             </Tooltip>
-                                            <Tooltip title={t("common.delete")}>
+                                            <Tooltip
+                                                title={t("common.delete")}
+                                                placement="top"
+                                                getPopupContainer={getTooltipContainer}
+                                            >
                                                 <CloseCircleOutlined
                                                     onClick={(e) => handleDelete(e, idx)}
-                                                    className="text-16px text-rose-500 cursor-pointer"
+                                                    className="history-action-icon"
                                                 />
                                             </Tooltip>
                                         </Space>

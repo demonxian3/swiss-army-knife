@@ -26,6 +26,7 @@ const zhCN = {
         searchKeyword: "输入关键字搜索",
         searchInput: "输入关键字",
         initialData: "初始数据",
+        manualEdit: "手动编辑",
         pastedText: "粘贴文本",
         settings: "设置",
         saveToPageSelectionSuccess: "已将面板内容写回页面选区",
@@ -59,11 +60,13 @@ const zhCN = {
     },
     history: {
         collectSuccess: "收藏成功",
+        empty: "暂无历史记录",
     },
     tree: {
         showAntNodes: "显示Antd节点",
         reactProjectTree: "React项目树",
         showDetail: "显示详情",
+        settingsHint: "按需切换树图展示维度，减少画布干扰。",
         jsonParseFailed: "JSON格式有误，无法解析出树图",
         root: "根节点",
     },

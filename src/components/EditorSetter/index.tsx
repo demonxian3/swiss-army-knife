@@ -62,7 +62,7 @@ const EditorSetter: React.FC<ISetterProps> = (props) => {
                     </Space>
                 )}
             </Form>
-            {extraActions}
+            {extraActions ? <div className="editor-toolbar-actions">{extraActions}</div> : null}
         </div>
     )
 }

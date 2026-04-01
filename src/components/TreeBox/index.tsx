@@ -3,7 +3,7 @@ import { Switch, Typography, Form } from "antd"
 import { observer } from "mobx-react-lite"
 import { useStore } from "@/stores"
 import { useI18n } from "@/i18n"
-import { MenuUnfoldOutlined, MenuFoldOutlined } from "@ant-design/icons"
+import { PicLeftOutlined, PicRightOutlined } from "@ant-design/icons"
 import { useLocalStorage, useWindowSize } from "react-use"
 import "./index.less" // 样式文件可以自定义
 
@@ -49,20 +49,23 @@ const TreeBox = () => {
         <div className={`relative h-full`} style={{ transition: "width 0.3s ease-in-out" }}>
             <div
                 ref={wrapperRef}
-                className="toolbox shadow flex relative"
+                className={`toolbox shadow flex relative ${gs.isDarkMode ? "toolbox-dark" : "toolbox-light"}`}
                 style={gs.getToolboxWidthStyle(isLaptop)}
             >
                 <div className="toolbox-rail h-full">
                     <button
                         onClick={() => gs.toggleToolExpand()}
-                        className="toolbox-toggle w-26px text-green-600 text-xl"
+                        className="toolbox-toggle panel-toggle-button"
                     >
-                        {gs.toolBoxExpand ? <MenuFoldOutlined /> : <MenuUnfoldOutlined />}
+                        {gs.toolBoxExpand ? <PicLeftOutlined /> : <PicRightOutlined />}
                     </button>
                 </div>
-                <div className="w-full ">
-                    <Typography className="text-gray-500 font-bold">{t("common.displaySettings")}</Typography>
-                    <Form>
+                <div className="tree-settings-panel w-full">
+                    <Typography className="tree-settings-title">{t("common.displaySettings")}</Typography>
+                    <Typography className="tree-settings-subtitle">
+                        {t("tree.settingsHint")}
+                    </Typography>
+                    <Form className="tree-settings-form" layout="vertical">
                         <Form.Item label={t("tree.showAntNodes")} className="mb-8px">
                             <Switch
                                 checked={showAnt}
